@@ -1,6 +1,6 @@
 [package]
 name = "mask-pii"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "A lightweight library to mask PII (Personally Identifiable Information) like emails and phone numbers."
 authors = ["Finite Field, K.K. <dev@finitefield.org>"]
