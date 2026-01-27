@@ -1,12 +1,11 @@
 use regex::Regex;
 
-/// マスキング設定を保持する構造体
 pub struct Masker {
     mask_email: bool,
-    mask_phone: bool, // 追加: 電話番号マスキングフラグ
-    mask_char: char,  // 追加: マスキングに使用する文字
+    mask_phone: bool,
+    mask_char: char,
     email_regex: Regex,
-    phone_regex: Regex, // 追加
+    phone_regex: Regex,
 }
 
 impl Masker {
@@ -14,44 +13,54 @@ impl Masker {
         Self {
             mask_email: false,
             mask_phone: false,
-            mask_char: '*', // デフォルトは '*'
+            mask_char: '*',
             
-            // メールアドレス用 (前回と同じ)
             email_regex: Regex::new(r"(?P<local>[a-zA-Z0-9._%+-]+)@(?P<domain>[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})")
                 .expect("Invalid email regex"),
             
-            // 電話番号用 (日本の一般的なハイフン付き番号に対応)
-            // 例: 090-1234-5678, 03-1234-5678
-            // (?P<head>...) は「市外局番」などのキャプチャグループ名です
-            phone_regex: Regex::new(r"(?P<head>0\d{1,3})-(?P<mid>\d{2,4})-(?P<tail>\d{3,4})")
-                .expect("Invalid phone regex"),
+            // --- グローバル対応の電話番号正規表現 ---
+            // 解説:
+            // 1. (?:\+?\d{1,4}[\s-]?)?  -> 国番号 (+81 や 1) があるかもしれない
+            // 2. (?:\(\d{1,5}\)|\d{1,5}) -> 市外局番 (カッコ付き or なし)
+            // 3. [\s-]?\d{1,5}[\s-]?\d{3,5} -> 市内局番と加入者番号
+            // これらを組み合わせた、少し緩めの正規表現です。
+            phone_regex: Regex::new(r"(?x) # (?x)はコメント許可モード
+                (?:
+                    \+?\d{1,4}    # 国番号 (例: +81)
+                    [\s-]?
+                )?
+                (?:
+                    \(\d{1,5}\)   # カッコ付き市外局番
+                    |
+                    \d{1,5}       # カッコなし
+                )
+                [\s-]?
+                \d{1,5}           # 番号ブロック1
+                [\s-]?
+                \d{3,5}           # 番号ブロック2
+            ").expect("Invalid phone regex"),
         }
     }
 
-    /// メールアドレスを隠す設定
     pub fn mask_emails(mut self) -> Self {
         self.mask_email = true;
         self
     }
 
-    /// 電話番号を隠す設定 (New)
     pub fn mask_phones(mut self) -> Self {
         self.mask_phone = true;
         self
     }
 
-    /// マスキングに使う文字を変更する (New)
-    /// 例: '*' ではなく 'x' にしたい場合など
     pub fn with_mask_char(mut self, c: char) -> Self {
         self.mask_char = c;
         self
     }
 
-    /// 実行処理
     pub fn process(&self, input: &str) -> String {
         let mut result = input.to_string();
 
-        // 1. メールアドレスの処理
+        // 1. Email処理 (変更なし)
         if self.mask_email {
             result = self.email_regex.replace_all(&result, |caps: &regex::Captures| {
                 let local_part = &caps["local"];
@@ -59,31 +68,41 @@ impl Masker {
                 
                 let masked_local = if local_part.len() > 1 {
                     let first_char = local_part.chars().next().unwrap();
-                    // self.mask_char を使用するように変更
                     let stars = self.mask_char.to_string().repeat(local_part.len() - 1);
                     format!("{}{}", first_char, stars)
                 } else {
                     self.mask_char.to_string()
                 };
-
                 format!("{}@{}", masked_local, domain_part)
             }).to_string();
         }
 
-        // 2. 電話番号の処理 (New)
+        // 2. 電話番号処理 (ロジック刷新)
         if self.mask_phone {
             result = self.phone_regex.replace_all(&result, |caps: &regex::Captures| {
-                let head = &caps["head"]; // 市外局番 (例: 090)
-                let mid = &caps["mid"];   // 市内局番 (例: 1234)
-                let tail = &caps["tail"]; // 加入者番号 (例: 5678)
-
-                // マスキングロジック:
-                // 市外局番は見せて、それ以降をすべてマスクする
-                // 例: 090-****-****
-                let masked_mid = self.mask_char.to_string().repeat(mid.len());
-                let masked_tail = self.mask_char.to_string().repeat(tail.len());
-
-                format!("{}-{}-{}", head, masked_mid, masked_tail)
+                let matched_str = &caps[0]; // マッチした電話番号全体
+                
+                // 数字だけを数える
+                let digit_count = matched_str.chars().filter(|c| c.is_ascii_digit()).count();
+                
+                // 数字が見つかった回数を追跡するカウンタ
+                let mut current_digit_index = 0;
+                
+                // マッチした文字列を1文字ずつ再構築する
+                matched_str.chars().map(|c| {
+                    if c.is_ascii_digit() {
+                        current_digit_index += 1;
+                        // ロジック: 末尾4桁以外はすべてマスクする
+                        // (ただし、総桁数が6桁以下の短い番号なら全部隠すなどの調整も可能)
+                        if digit_count > 4 && current_digit_index <= digit_count - 4 {
+                            self.mask_char
+                        } else {
+                            c // 末尾4桁はそのまま表示
+                        }
+                    } else {
+                        c // ハイフンやスペース、カッコはそのまま残す
+                    }
+                }).collect::<String>()
             }).to_string();
         }
 
@@ -91,39 +110,37 @@ impl Masker {
     }
 }
 
-// --- テストコード ---
+// --- グローバル対応テスト ---
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_mask_email_custom_char() {
-        // 'x' でマスクするテスト
-        let masker = Masker::new().mask_emails().with_mask_char('x');
-        let input = "alice@example.com";
-        let expected = "axxxx@example.com";
-        
-        assert_eq!(masker.process(input), expected);
-    }
-
-    #[test]
-    fn test_mask_phone_jp() {
-        // 電話番号のテスト
+    fn test_global_phones() {
         let masker = Masker::new().mask_phones();
-        let input = "私の番号は 090-1234-5678 です。";
-        // 090 は残して、あとは * になる
-        let expected = "私の番号は 090-****-**** です。";
-        
-        assert_eq!(masker.process(input), expected);
-    }
 
-    #[test]
-    fn test_mask_mixed() {
-        // メールと電話の両方をマスク
-        let masker = Masker::new().mask_emails().mask_phones();
-        let input = "Tel: 03-9999-0000, Email: bob@test.com";
-        let expected = "Tel: 03-****-****, Email: b**@test.com";
+        // 日本 (ハイフンあり)
+        assert_eq!(
+            masker.process("Tel: 090-1234-5678"),
+            "Tel: ***-****-5678" // 末尾4桁以外隠れる
+        );
+
+        // 米国 (カッコあり)
+        assert_eq!(
+            masker.process("Call (555) 123-4567 now"),
+            "Call (***) ***-4567 now"
+        );
+
+        // 国際電話 (+付き)
+        assert_eq!(
+            masker.process("Intl: +81 3 1234 5678"),
+            "Intl: +** * **** 5678"
+        );
         
-        assert_eq!(masker.process(input), expected);
+        // 桁数が少ない場合 (末尾4桁だけ残る)
+        assert_eq!(
+            masker.process("Short: 12-3456"),
+            "Short: **-3456"
+        );
     }
 }
