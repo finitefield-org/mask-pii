@@ -2,6 +2,14 @@
 name = "mask-pii"
 version = "0.1.0"
 edition = "2024"
+description = "A lightweight library to mask PII (Personally Identifiable Information) like emails and phone numbers."
+authors = ["Finite Field, K.K. <dev@finitefield.org>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/finitefield-org/mask-pii"
+readme = "README.md"
+keywords = ["pii", "security", "masking", "gdpr", "privacy"]
+categories = ["text-processing", "value-formatting"]
+homepage = "https://finitefield.org/en/oss/mask-pii"
 
 [dependencies]
 regex = "1.10"
