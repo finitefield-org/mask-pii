@@ -41,5 +41,38 @@ fn main() {
 }
 ```
 
+## Configuration
+
+The `Masker` struct uses the **Builder Pattern**. You can chain methods to configure which PII types to detect and how to mask them.
+
+By default, `Masker::new()` performs **no masking** (pass-through). You must explicitly enable the filters you need.
+
+### Builder Methods
+
+| Method | Description | Default |
+| --- | --- | --- |
+| `mask_emails()` | Enables detection and masking of email addresses. | `Disabled` |
+| `mask_phones()` | Enables detection and masking of global phone numbers. | `Disabled` |
+| `with_mask_char(char)` | Sets the character used for masking (e.g., `'*'`, `'#'`, `'x'`). | `'*'` |
+
+### Masking Logic Details
+
+Understanding how data is masked is crucial for security and usability.
+
+* **📧 Emails**
+* **Pattern:** Detects standard email formats.
+* **Behavior:** Keeps the **first character** of the local part and the domain. Masks the rest of the local part.
+* **Example:** `alice@example.com` -> `a****@example.com`
+* **Short Emails:** If the local part is 1 character, it is fully masked (e.g., `a@b.com` -> `*@b.com`).
+
+
+* **📞 Phones (Global Support)**
+* **Pattern:** Detects sequences of digits that look like phone numbers (supports International `+81...`, US `(555)...`, and Hyphenated `090-...`).
+* **Behavior:** Preserves formatting (hyphens, spaces, parentheses) and the **last 4 digits**. All other digits are replaced.
+* **Example:**
+* `090-1234-5678` -> `090-****-5678`
+* `+1 (800) 123-4567` -> `+1 (***) ***-4567`
+* `12345` -> `*2345` (Short numbers)
+
 ## Developer
 This library is developed by [Finite Field, K.K.](https://finitefield.org).
