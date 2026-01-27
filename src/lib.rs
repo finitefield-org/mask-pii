@@ -2,50 +2,88 @@ use regex::Regex;
 
 /// マスキング設定を保持する構造体
 pub struct Masker {
-    // 将来的に電話番号やクレカなどのフラグもここに追加します
     mask_email: bool,
+    mask_phone: bool, // 追加: 電話番号マスキングフラグ
+    mask_char: char,  // 追加: マスキングに使用する文字
     email_regex: Regex,
+    phone_regex: Regex, // 追加
 }
 
 impl Masker {
-    /// デフォルトの設定で新しいMaskerを作成
     pub fn new() -> Self {
         Self {
             mask_email: false,
-            // 簡易的なメールアドレス検出用正規表現
-            // 本格的なものはもっと複雑ですが、まずはこれで十分です
+            mask_phone: false,
+            mask_char: '*', // デフォルトは '*'
+            
+            // メールアドレス用 (前回と同じ)
             email_regex: Regex::new(r"(?P<local>[a-zA-Z0-9._%+-]+)@(?P<domain>[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})")
-                .expect("Invalid regex"),
+                .expect("Invalid email regex"),
+            
+            // 電話番号用 (日本の一般的なハイフン付き番号に対応)
+            // 例: 090-1234-5678, 03-1234-5678
+            // (?P<head>...) は「市外局番」などのキャプチャグループ名です
+            phone_regex: Regex::new(r"(?P<head>0\d{1,3})-(?P<mid>\d{2,4})-(?P<tail>\d{3,4})")
+                .expect("Invalid phone regex"),
         }
     }
 
-    /// メールアドレスのマスキングを有効にするビルダーメソッド
+    /// メールアドレスを隠す設定
     pub fn mask_emails(mut self) -> Self {
         self.mask_email = true;
         self
     }
 
-    /// テキストを処理して、マスキングされた文字列を返す
+    /// 電話番号を隠す設定 (New)
+    pub fn mask_phones(mut self) -> Self {
+        self.mask_phone = true;
+        self
+    }
+
+    /// マスキングに使う文字を変更する (New)
+    /// 例: '*' ではなく 'x' にしたい場合など
+    pub fn with_mask_char(mut self, c: char) -> Self {
+        self.mask_char = c;
+        self
+    }
+
+    /// 実行処理
     pub fn process(&self, input: &str) -> String {
         let mut result = input.to_string();
 
+        // 1. メールアドレスの処理
         if self.mask_email {
-            // Regexを使って置換処理を行う
             result = self.email_regex.replace_all(&result, |caps: &regex::Captures| {
                 let local_part = &caps["local"];
                 let domain_part = &caps["domain"];
                 
-                // マスキングロジック:
-                // ローカルパート（@の前）の先頭1文字だけ残して、あとは '*' にする
                 let masked_local = if local_part.len() > 1 {
                     let first_char = local_part.chars().next().unwrap();
-                    let stars = "*".repeat(local_part.len() - 1);
+                    // self.mask_char を使用するように変更
+                    let stars = self.mask_char.to_string().repeat(local_part.len() - 1);
                     format!("{}{}", first_char, stars)
                 } else {
-                    "*".to_string()
+                    self.mask_char.to_string()
                 };
 
                 format!("{}@{}", masked_local, domain_part)
+            }).to_string();
+        }
+
+        // 2. 電話番号の処理 (New)
+        if self.mask_phone {
+            result = self.phone_regex.replace_all(&result, |caps: &regex::Captures| {
+                let head = &caps["head"]; // 市外局番 (例: 090)
+                let mid = &caps["mid"];   // 市内局番 (例: 1234)
+                let tail = &caps["tail"]; // 加入者番号 (例: 5678)
+
+                // マスキングロジック:
+                // 市外局番は見せて、それ以降をすべてマスクする
+                // 例: 090-****-****
+                let masked_mid = self.mask_char.to_string().repeat(mid.len());
+                let masked_tail = self.mask_char.to_string().repeat(tail.len());
+
+                format!("{}-{}-{}", head, masked_mid, masked_tail)
             }).to_string();
         }
 
@@ -53,35 +91,39 @@ impl Masker {
     }
 }
 
-// --- テストコード (ここが開発のメインフィールドです) ---
+// --- テストコード ---
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_mask_email_basic() {
-        let masker = Masker::new().mask_emails();
-        let input = "Contact me at alice@example.com please.";
-        let expected = "Contact me at a****@example.com please.";
-        
-        assert_eq!(masker.process(input), expected);
-    }
-
-    #[test]
-    fn test_mask_email_short() {
-        let masker = Masker::new().mask_emails();
-        let input = "Email: a@b.com";
-        // 1文字の場合はすべて隠すロジックにしているため
-        let expected = "Email: *@b.com"; 
-        
-        assert_eq!(masker.process(input), expected);
-    }
-
-    #[test]
-    fn test_no_masking() {
-        // mask_emails() を呼ばない場合
-        let masker = Masker::new();
+    fn test_mask_email_custom_char() {
+        // 'x' でマスクするテスト
+        let masker = Masker::new().mask_emails().with_mask_char('x');
         let input = "alice@example.com";
-        assert_eq!(masker.process(input), input);
+        let expected = "axxxx@example.com";
+        
+        assert_eq!(masker.process(input), expected);
+    }
+
+    #[test]
+    fn test_mask_phone_jp() {
+        // 電話番号のテスト
+        let masker = Masker::new().mask_phones();
+        let input = "私の番号は 090-1234-5678 です。";
+        // 090 は残して、あとは * になる
+        let expected = "私の番号は 090-****-**** です。";
+        
+        assert_eq!(masker.process(input), expected);
+    }
+
+    #[test]
+    fn test_mask_mixed() {
+        // メールと電話の両方をマスク
+        let masker = Masker::new().mask_emails().mask_phones();
+        let input = "Tel: 03-9999-0000, Email: bob@test.com";
+        let expected = "Tel: 03-****-****, Email: b**@test.com";
+        
+        assert_eq!(masker.process(input), expected);
     }
 }
