@@ -4,6 +4,9 @@ A lightweight, customizable Rust library for masking Personally Identifiable Inf
 
 It is designed to be safe, fast, and easy to integrate into logging or data processing pipelines.
 
+🌐 Official website: [https://finitefield.org/en/oss/mask-pii](https://finitefield.org/en/oss/mask-pii)  
+🏢 Developed by: [Finite Field, K.K.](https://finitefield.org)  
+
 ## Features
 
 - 📧 **Email Masking:** Masks the local part while preserving the domain (e.g., `a****@example.com`).
@@ -73,6 +76,3 @@ Understanding how data is masked is crucial for security and usability.
 * `090-1234-5678` -> `090-****-5678`
 * `+1 (800) 123-4567` -> `+1 (***) ***-4567`
 * `12345` -> `*2345` (Short numbers)
-
-## Developer
-This library is developed by [Finite Field, K.K.](https://finitefield.org).
