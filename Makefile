@@ -1,11 +1,11 @@
-.PHONY: test test-rust test-ruby test-go test-python python-venv publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-all publish-all-dry
+.PHONY: test test-rust test-ruby test-go test-python test-php php-deps python-venv publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-php publish-php-dry publish-all publish-all-dry
 
 GEM_VERSION := $(shell cd ruby && ruby -r./lib/mask_pii/version -e 'print MaskPII::VERSION')
 VERSION := $(shell cat VERSION)
 PYTHON_VENV := python/.venv
 PYTHON_BIN := $(abspath $(PYTHON_VENV)/bin/python)
 
-test: test-rust test-ruby test-go test-python
+test: test-rust test-ruby test-go test-python test-php
 
 # Run Rust tests
 
@@ -26,6 +26,14 @@ test-go:
 
 test-python: python-venv
 	cd python && $(PYTHON_BIN) -m unittest discover -s tests
+
+# Run PHP tests
+
+test-php: php-deps
+	cd php && composer test
+
+php-deps:
+	cd php && composer install
 
 python-venv:
 	python3 -m venv $(PYTHON_VENV)
@@ -69,6 +77,12 @@ publish-python-dry: python-venv
 	cd python && $(PYTHON_BIN) -m build
 	cd python && $(PYTHON_BIN) -m twine check dist/*
 
-publish-all: publish-rust publish-ruby publish-go publish-python
+publish-php:
+	cd php && composer validate
 
-publish-all-dry: publish-rust-dry publish-ruby-dry publish-go-dry publish-python-dry
+publish-php-dry:
+	cd php && composer validate --strict
+
+publish-all: publish-rust publish-ruby publish-go publish-python publish-php
+
+publish-all-dry: publish-rust-dry publish-ruby-dry publish-go-dry publish-python-dry publish-php-dry

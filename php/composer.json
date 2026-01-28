@@ -1,0 +1,37 @@
+{
+  "name": "finitefield-org/mask-pii",
+  "description": "Lightweight, customizable PII masking for emails and phone numbers.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": ["pii", "masking", "email", "phone", "privacy"],
+  "homepage": "https://finitefield.org/en/oss/mask-pii",
+  "authors": [
+    {
+      "name": "Finite Field, K.K.",
+      "email": "dev@finitefield.org"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/finitefield-org/mask-pii/issues",
+    "source": "https://github.com/finitefield-org/mask-pii"
+  },
+  "require": {
+    "php": ">=8.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "MaskPII\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MaskPII\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit"
+  }
+}
