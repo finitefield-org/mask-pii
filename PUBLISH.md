@@ -118,6 +118,22 @@ make publish-php
 Registration
 - Create a Julia package repository and ensure `Project.toml` is present.
 - Use Registrator.jl to open a registration pull request to the General registry.
+
+## Elixir (Hex)
+
+Registration
+- Create an account on Hex.pm and generate an API key.
+- Configure credentials: `mix hex.user auth`.
+
+Publish
+```bash
+make publish-elixir
+```
+
+Dry run
+```bash
+make publish-elixir-dry
+```
   - For this repository, use the subdir comment: `@JuliaRegistrator register subdir=julia`
 
 Publish

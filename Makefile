@@ -1,11 +1,11 @@
-.PHONY: test test-rust test-ruby test-go test-python test-php test-swift test-julia build build-julia php-deps python-venv publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-php publish-php-dry publish-swift publish-swift-dry publish-julia publish-julia-dry publish-all publish-all-dry
+.PHONY: test test-rust test-ruby test-go test-python test-php test-swift test-julia test-elixir build build-julia build-elixir php-deps python-venv publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-php publish-php-dry publish-swift publish-swift-dry publish-julia publish-julia-dry publish-elixir publish-elixir-dry publish-all publish-all-dry
 
 GEM_VERSION := $(shell cd ruby && ruby -r./lib/mask_pii/version -e 'print MaskPII::VERSION')
 VERSION := $(shell cat VERSION)
 PYTHON_VENV := python/.venv
 PYTHON_BIN := $(abspath $(PYTHON_VENV)/bin/python)
 
-test: test-rust test-ruby test-go test-python test-php test-swift test-julia
+test: test-rust test-ruby test-go test-python test-php test-swift test-julia test-elixir
 
 # Run Rust tests
 
@@ -42,12 +42,23 @@ test-swift:
 test-julia:
 	julia --project=julia -e 'using Pkg; Pkg.test()'
 
+# Run Elixir tests
+
+test-elixir:
+	cd elixir && mix test
+
 # Build Julia package (instantiate + precompile)
 
-build: build-julia
+build: build-julia build-elixir
 
 build-julia:
 	julia --project=julia -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+
+# Build Elixir package (fetch deps + compile)
+
+build-elixir:
+	cd elixir && mix deps.get
+	cd elixir && mix compile
 
 php-deps:
 	cd php && composer install
@@ -116,6 +127,14 @@ publish-julia-dry:
 	@echo "Julia publish dry run: no operation."
 	@echo "For this repository, comment: @JuliaRegistrator register subdir=julia"
 
-publish-all: publish-rust publish-ruby publish-go publish-python publish-php publish-swift publish-julia
+publish-elixir:
+	cd elixir && mix local.hex --force
+	cd elixir && mix hex.publish
 
-publish-all-dry: publish-rust-dry publish-ruby-dry publish-go-dry publish-python-dry publish-php-dry publish-swift-dry publish-julia-dry
+publish-elixir-dry:
+	cd elixir && mix local.hex --force
+	cd elixir && mix hex.publish --dry-run
+
+publish-all: publish-rust publish-ruby publish-go publish-python publish-php publish-swift publish-julia publish-elixir
+
+publish-all-dry: publish-rust-dry publish-ruby-dry publish-go-dry publish-python-dry publish-php-dry publish-swift-dry publish-julia-dry publish-elixir-dry
