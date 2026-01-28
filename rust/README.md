@@ -1,5 +1,7 @@
 # mask-pii
 
+Version: 0.2.0
+
 A lightweight, customizable Rust library for masking Personally Identifiable Information (PII) such as **email addresses** and **phone numbers** (supporting global formats).
 
 It is designed to be safe, fast, and easy to integrate into logging or data processing pipelines.
@@ -12,7 +14,7 @@ It is designed to be safe, fast, and easy to integrate into logging or data proc
 - 📧 **Email Masking:** Masks the local part while preserving the domain (e.g., `a****@example.com`).
 - 📞 **Global Phone Masking:** Detects international phone formats and masks all digits except the last 4 (e.g., `090-****-5678`, `+1 (***) ***-1234`).
 - 🛠 **Customizable:** Change the masking character (default is `*`).
-- 🚀 **Zero Unnecessary Dependencies:** Only depends on `regex`.
+- 🚀 **Zero Unnecessary Dependencies:** Pure Rust implementation.
 
 ## Installation
 

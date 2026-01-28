@@ -10,6 +10,7 @@ The project provides consistent masking behavior across multiple language implem
 ## Language-specific implementations
 
 - Rust: see `rust/README.md`
+- Ruby: see `ruby/README.md`
 
 ## Core concepts
 
