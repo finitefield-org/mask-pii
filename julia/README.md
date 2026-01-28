@@ -1,6 +1,6 @@
 # mask-pii (Julia)
 
-Version: 0.2.0
+Version: 0.1.0
 
 A lightweight, customizable Julia library for masking Personally Identifiable Information (PII) such as **email addresses** and **phone numbers**.
 

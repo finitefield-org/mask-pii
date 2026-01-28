@@ -1,6 +1,6 @@
 name = "MaskPII"
 uuid = "e51ab4cc-94ad-4aad-a579-d543f796cd4d"
-version = "0.2.0"
+version = "0.1.0"
 authors = ["Finite Field, K.K."]
 license = "MIT"
 description = "A lightweight Julia library for masking PII such as emails and phone numbers."
