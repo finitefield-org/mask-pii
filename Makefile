@@ -1,7 +1,9 @@
-.PHONY: test test-rust test-ruby test-go test-python publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-all publish-all-dry
+.PHONY: test test-rust test-ruby test-go test-python python-venv publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-all publish-all-dry
 
 GEM_VERSION := $(shell cd ruby && ruby -r./lib/mask_pii/version -e 'print MaskPII::VERSION')
 VERSION := $(shell cat VERSION)
+PYTHON_VENV := python/.venv
+PYTHON_BIN := $(abspath $(PYTHON_VENV)/bin/python)
 
 test: test-rust test-ruby test-go test-python
 
@@ -22,8 +24,13 @@ test-go:
 
 # Run Python tests
 
-test-python:
-	cd python && python3 -m unittest discover -s tests
+test-python: python-venv
+	cd python && $(PYTHON_BIN) -m unittest discover -s tests
+
+python-venv:
+	python3 -m venv $(PYTHON_VENV)
+	$(PYTHON_BIN) -m pip install -U pip
+	$(PYTHON_BIN) -m pip install build twine
 
 # Build and publish the Ruby gem
 
@@ -54,13 +61,13 @@ publish-go-dry:
 	@echo "git tag -a go/v$(VERSION) -m \"go v$(VERSION)\""
 	@echo "git push origin go/v$(VERSION)"
 
-publish-python:
-	cd python && python3 -m build
-	cd python && python3 -m twine upload dist/*
+publish-python: python-venv
+	cd python && $(PYTHON_BIN) -m build
+	cd python && $(PYTHON_BIN) -m twine upload dist/*
 
-publish-python-dry:
-	cd python && python3 -m build
-	cd python && python3 -m twine check dist/*
+publish-python-dry: python-venv
+	cd python && $(PYTHON_BIN) -m build
+	cd python && $(PYTHON_BIN) -m twine check dist/*
 
 publish-all: publish-rust publish-ruby publish-go publish-python
 

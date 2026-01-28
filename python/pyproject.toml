@@ -31,6 +31,7 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://finitefield.org/en/oss/mask-pii"
+Repository = "https://github.com/finitefield-org/mask-pii"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
