@@ -7,3 +7,6 @@ tmp/
 # Python
 .venv/
 __pycache__/
+
+# Swift
+.build/

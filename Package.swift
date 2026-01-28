@@ -15,12 +15,12 @@ let package = Package(
     targets: [
         .target(
             name: "MaskPII",
-            path: "Sources"
+            path: "swift/Sources"
         ),
         .testTarget(
             name: "MaskPIITests",
             dependencies: ["MaskPII"],
-            path: "Tests"
+            path: "swift/Tests"
         )
     ]
 )

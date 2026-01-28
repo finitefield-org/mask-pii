@@ -35,7 +35,7 @@ test-php: php-deps
 # Run Swift tests
 
 test-swift:
-	cd swift && swift test
+	swift test
 
 php-deps:
 	cd php && composer install
