@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Finite Field, K.K."]
   spec.email = ["dev@finitefield.org"]
   spec.homepage = "https://finitefield.org/en/oss/mask-pii"
-  spec.license = "MIT OR Apache-2.0"
+  spec.license = "MIT"
   spec.required_ruby_version = ">= 2.7.0"
 
   spec.files = Dir.chdir(__dir__) { Dir["lib/**/*", "README.md", "LICENSE*", "test/**/*"] }
