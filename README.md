@@ -10,6 +10,7 @@ The project provides consistent masking behavior across multiple language implem
 ## Language-specific implementations
 
 - Go: see `go/README.md`
+- Julia: see `julia/README.md`
 - PHP: see `php/README.md`
 - Python: see `python/README.md`
 - Rust: see `rust/README.md`

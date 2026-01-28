@@ -1,11 +1,11 @@
-.PHONY: test test-rust test-ruby test-go test-python test-php test-swift php-deps python-venv publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-php publish-php-dry publish-swift publish-swift-dry publish-all publish-all-dry
+.PHONY: test test-rust test-ruby test-go test-python test-php test-swift test-julia build build-julia php-deps python-venv publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-php publish-php-dry publish-swift publish-swift-dry publish-julia publish-julia-dry publish-all publish-all-dry
 
 GEM_VERSION := $(shell cd ruby && ruby -r./lib/mask_pii/version -e 'print MaskPII::VERSION')
 VERSION := $(shell cat VERSION)
 PYTHON_VENV := python/.venv
 PYTHON_BIN := $(abspath $(PYTHON_VENV)/bin/python)
 
-test: test-rust test-ruby test-go test-python test-php test-swift
+test: test-rust test-ruby test-go test-python test-php test-swift test-julia
 
 # Run Rust tests
 
@@ -36,6 +36,18 @@ test-php: php-deps
 
 test-swift:
 	swift test
+
+# Run Julia tests
+
+test-julia:
+	julia --project=julia -e 'using Pkg; Pkg.test()'
+
+# Build Julia package (instantiate + precompile)
+
+build: build-julia
+
+build-julia:
+	julia --project=julia -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
 
 php-deps:
 	cd php && composer install
@@ -95,6 +107,13 @@ publish-swift:
 publish-swift-dry:
 	@echo "SwiftPM publish dry run: no operation."
 
-publish-all: publish-rust publish-ruby publish-go publish-python publish-php publish-swift
+publish-julia:
+	@echo "Julia packages are registered via the General Registry."
+	@echo "Use Registrator.jl on the repository and tag the release."
 
-publish-all-dry: publish-rust-dry publish-ruby-dry publish-go-dry publish-python-dry publish-php-dry publish-swift-dry
+publish-julia-dry:
+	@echo "Julia publish dry run: no operation."
+
+publish-all: publish-rust publish-ruby publish-go publish-python publish-php publish-swift publish-julia
+
+publish-all-dry: publish-rust-dry publish-ruby-dry publish-go-dry publish-python-dry publish-php-dry publish-swift-dry publish-julia-dry

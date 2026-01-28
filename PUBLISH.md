@@ -112,3 +112,18 @@ Optional validate (non-strict)
 ```bash
 make publish-php
 ```
+
+## Julia (General Registry via Pkg)
+
+Registration
+- Create a Julia package repository and ensure `Project.toml` is present.
+- Use Registrator.jl to open a registration pull request to the General registry.
+
+Publish
+- Tag the release with the version in `VERSION`.
+- Merge the registry PR once CI passes.
+
+Dry run
+```bash
+make publish-julia-dry
+```
