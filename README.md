@@ -14,6 +14,7 @@ The project provides consistent masking behavior across multiple language implem
 - Python: see `python/README.md`
 - Rust: see `rust/README.md`
 - Ruby: see `ruby/README.md`
+- Swift: see `swift/README.md`
 
 ## Core concepts
 

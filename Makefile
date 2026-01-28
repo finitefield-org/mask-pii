@@ -1,11 +1,11 @@
-.PHONY: test test-rust test-ruby test-go test-python test-php php-deps python-venv publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-php publish-php-dry publish-all publish-all-dry
+.PHONY: test test-rust test-ruby test-go test-python test-php test-swift php-deps python-venv publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-php publish-php-dry publish-swift publish-swift-dry publish-all publish-all-dry
 
 GEM_VERSION := $(shell cd ruby && ruby -r./lib/mask_pii/version -e 'print MaskPII::VERSION')
 VERSION := $(shell cat VERSION)
 PYTHON_VENV := python/.venv
 PYTHON_BIN := $(abspath $(PYTHON_VENV)/bin/python)
 
-test: test-rust test-ruby test-go test-python test-php
+test: test-rust test-ruby test-go test-python test-php test-swift
 
 # Run Rust tests
 
@@ -31,6 +31,11 @@ test-python: python-venv
 
 test-php: php-deps
 	cd php && composer test
+
+# Run Swift tests
+
+test-swift:
+	cd swift && swift test
 
 php-deps:
 	cd php && composer install
@@ -83,6 +88,13 @@ publish-php:
 publish-php-dry:
 	cd php && composer validate --strict
 
-publish-all: publish-rust publish-ruby publish-go publish-python publish-php
+publish-swift:
+	@echo "SwiftPM does not require an explicit publish step."
+	@echo "Use git tags and push to GitHub for SwiftPM distribution."
 
-publish-all-dry: publish-rust-dry publish-ruby-dry publish-go-dry publish-python-dry publish-php-dry
+publish-swift-dry:
+	@echo "SwiftPM publish dry run: no operation."
+
+publish-all: publish-rust publish-ruby publish-go publish-python publish-php publish-swift
+
+publish-all-dry: publish-rust-dry publish-ruby-dry publish-go-dry publish-python-dry publish-php-dry publish-swift-dry
