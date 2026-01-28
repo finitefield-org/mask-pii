@@ -1,0 +1,36 @@
+{
+  "name": "mask-pii",
+  "version": "0.2.0",
+  "description": "A lightweight, customizable library for masking PII such as email addresses and phone numbers.",
+  "license": "MIT",
+  "homepage": "https://finitefield.org/en/oss/mask-pii",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finitefield-org/mask-pii"
+  },
+  "bugs": {
+    "url": "https://github.com/finitefield-org/mask-pii/issues"
+  },
+  "keywords": [
+    "pii",
+    "masking",
+    "email",
+    "phone",
+    "privacy"
+  ],
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,80 @@
+plugins {
+    id 'groovy'
+    id 'maven-publish'
+}
+
+group = 'org.finitefield'
+version = file('../VERSION').text.trim()
+
+description = 'A lightweight library to mask PII (emails and phone numbers).'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation localGroovy()
+
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.register('sourcesJar', Jar) {
+    from sourceSets.main.allSource
+    archiveClassifier = 'sources'
+}
+
+tasks.register('javadocJar', Jar) {
+    from tasks.named('groovydoc')
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'mask-pii'
+            artifact tasks.named('sourcesJar')
+            artifact tasks.named('javadocJar')
+            pom {
+                name = 'mask-pii'
+                description = project.description
+                url = 'https://finitefield.org/en/oss/mask-pii'
+                licenses {
+                    license {
+                        name = 'MIT'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Finite Field, K.K.'
+                        organization = 'Finite Field, K.K.'
+                        organizationUrl = 'https://finitefield.org/en/'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/finitefield-org/mask-pii'
+                    connection = 'scm:git:https://github.com/finitefield-org/mask-pii.git'
+                    developerConnection = 'scm:git:https://github.com/finitefield-org/mask-pii.git'
+                }
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/finitefield-org/mask-pii/issues'
+                }
+                properties = [
+                    'keywords': 'pii, masking, email, phone, privacy'
+                ]
+            }
+        }
+    }
+}

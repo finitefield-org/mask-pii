@@ -1,0 +1,28 @@
+{
+  "name": "mask-pii",
+  "version": "0.2.0",
+  "description": "Bash library for masking PII (emails and phone numbers).",
+  "homepage": "https://finitefield.org/en/oss/mask-pii",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finitefield-org/mask-pii"
+  },
+  "bugs": {
+    "url": "https://github.com/finitefield-org/mask-pii/issues"
+  },
+  "license": "MIT",
+  "author": "Finite Field, K.K.",
+  "keywords": [
+    "pii",
+    "masking",
+    "email",
+    "phone",
+    "privacy"
+  ],
+  "files": [
+    "mask_pii.sh",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "main": "mask_pii.sh"
+}

@@ -10,3 +10,7 @@ __pycache__/
 
 # Swift
 .build/
+
+# Pony
+pony/test/test
+example/pony/pony

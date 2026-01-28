@@ -1,0 +1,16 @@
+Package: maskpii
+Type: Package
+Title: Mask Personally Identifiable Information
+Version: 0.2.0
+Authors@R: c(
+  person("Finite Field, K.K.", email = "dev@finitefield.org", role = c("aut", "cre"))
+)
+Description: Lightweight utilities for masking personally identifiable information
+  such as email addresses and phone numbers. The masking logic is consistent across
+  language implementations and avoids regular expressions for predictable behavior.
+License: MIT + file LICENSE
+URL: https://finitefield.org/en/oss/mask-pii
+BugReports: https://github.com/finitefield-org/mask-pii/issues
+Encoding: UTF-8
+Suggests: testthat (>= 3.0.0)
+Keywords: pii, masking, email, phone, privacy

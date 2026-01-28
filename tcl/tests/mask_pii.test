@@ -1,0 +1,280 @@
+package require Tcl 8.6
+package require tcltest
+
+set here [file dirname [file normalize [info script]]]
+set root [file dirname $here]
+lappend auto_path $root
+
+package require mask_pii 0.2.0
+
+namespace import ::tcltest::*
+
+proc new_masker {} {
+    return [::mask_pii::Masker new]
+}
+
+# Email masking tests
+
+test email_basic_1 {mask basic email} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    set result [$masker process "alice@example.com"]
+    $masker destroy
+    set result
+} -result "a****@example.com"
+
+test email_basic_2 {mask one-letter local part} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    set result [$masker process "a@b.com"]
+    $masker destroy
+    set result
+} -result "*@b.com"
+
+test email_basic_3 {mask two-letter local part} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    set result [$masker process "ab@example.com"]
+    $masker destroy
+    set result
+} -result "a*@example.com"
+
+test email_basic_4 {mask email with dots and plus} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    set result [$masker process "a.b+c_d@example.co.jp"]
+    $masker destroy
+    set result
+} -result "a******@example.co.jp"
+
+test email_mixed_1 {mask email in text} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    set result [$masker process "Contact: alice@example.com."]
+    $masker destroy
+    set result
+} -result "Contact: a****@example.com."
+
+test email_mixed_2 {mask multiple emails} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    set result [$masker process "alice@example.com and bob@example.org"]
+    $masker destroy
+    set result
+} -result "a****@example.com and b**@example.org"
+
+test email_edge_1 {invalid email missing tld} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    set result [$masker process "alice@example"]
+    $masker destroy
+    set result
+} -result "alice@example"
+
+test email_edge_2 {invalid email localhost} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    set result [$masker process "alice@localhost"]
+    $masker destroy
+    set result
+} -result "alice@localhost"
+
+test email_edge_3 {invalid email with double at} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    set result [$masker process "alice@@example.com"]
+    $masker destroy
+    set result
+} -result "alice@@example.com"
+
+test email_edge_4 {mask subdomain email} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    set result [$masker process "first.last+tag@sub.domain.com"]
+    $masker destroy
+    set result
+} -result "f*************@sub.domain.com"
+
+# Phone masking tests
+
+test phone_basic_1 {mask japanese mobile} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "090-1234-5678"]
+    $masker destroy
+    set result
+} -result "***-****-5678"
+
+test phone_basic_2 {mask phone with parentheses} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "Call (555) 123-4567"]
+    $masker destroy
+    set result
+} -result "Call (***) ***-4567"
+
+test phone_basic_3 {mask international format} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "Intl: +81 3 1234 5678"]
+    $masker destroy
+    set result
+} -result "Intl: +** * **** 5678"
+
+test phone_basic_4 {mask us format} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "+1 (800) 123-4567"]
+    $masker destroy
+    set result
+} -result "+* (***) ***-4567"
+
+test phone_short_1 {no masking for 4 digits} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "1234"]
+    $masker destroy
+    set result
+} -result "1234"
+
+test phone_short_2 {mask 5 digits} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "12345"]
+    $masker destroy
+    set result
+} -result "*2345"
+
+test phone_short_3 {mask 6 digits with dash} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "12-3456"]
+    $masker destroy
+    set result
+} -result "**-3456"
+
+test phone_mixed_1 {mask phone with extension} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "Tel: 090-1234-5678 ext. 99"]
+    $masker destroy
+    set result
+} -result "Tel: ***-****-5678 ext. 99"
+
+test phone_mixed_2 {mask multiple phones} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "Numbers: 111-2222 and 333-4444"]
+    $masker destroy
+    set result
+} -result "Numbers: ***-2222 and ***-4444"
+
+test phone_edge_1 {ignore non-phone} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "abcdef"]
+    $masker destroy
+    set result
+} -result "abcdef"
+
+test phone_edge_2 {ignore plus only} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "+"]
+    $masker destroy
+    set result
+} -result "+"
+
+test phone_edge_3 {mask ambiguous format} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "(12) 345 678"]
+    $masker destroy
+    set result
+} -result "(**) **5 678"
+
+# Combined masking tests
+
+test combined_1 {mask email and phone} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    $masker mask_phones
+    set result [$masker process "Contact: alice@example.com or 090-1234-5678."]
+    $masker destroy
+    set result
+} -result "Contact: a****@example.com or ***-****-5678."
+
+test combined_2 {mask email and phone in same text} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    $masker mask_phones
+    set result [$masker process "Email bob@example.org, phone +1 (800) 123-4567"]
+    $masker destroy
+    set result
+} -result "Email b**@example.org, phone +* (***) ***-4567"
+
+# Custom mask character tests
+
+test custom_mask_1 {mask email with custom char} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    $masker with_mask_char "#"
+    set result [$masker process "alice@example.com"]
+    $masker destroy
+    set result
+} -result "a####@example.com"
+
+test custom_mask_2 {mask phone with custom char} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    $masker with_mask_char "#"
+    set result [$masker process "090-1234-5678"]
+    $masker destroy
+    set result
+} -result "###-####-5678"
+
+test custom_mask_3 {mask email and phone with custom char} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    $masker mask_phones
+    $masker with_mask_char "#"
+    set result [$masker process "Contact: alice@example.com or 090-1234-5678."]
+    $masker destroy
+    set result
+} -result "Contact: a####@example.com or ###-####-5678."
+
+# Masker configuration tests
+
+test config_1 {no masks enabled} -body {
+    set masker [new_masker]
+    set result [$masker process "alice@example.com 090-1234-5678"]
+    $masker destroy
+    set result
+} -result "alice@example.com 090-1234-5678"
+
+test config_2 {only email masking} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    set result [$masker process "alice@example.com 090-1234-5678"]
+    $masker destroy
+    set result
+} -result "a****@example.com 090-1234-5678"
+
+test config_3 {only phone masking} -body {
+    set masker [new_masker]
+    $masker mask_phones
+    set result [$masker process "alice@example.com 090-1234-5678"]
+    $masker destroy
+    set result
+} -result "alice@example.com ***-****-5678"
+
+test config_4 {email and phone masking} -body {
+    set masker [new_masker]
+    $masker mask_emails
+    $masker mask_phones
+    set result [$masker process "alice@example.com 090-1234-5678"]
+    $masker destroy
+    set result
+} -result "a****@example.com ***-****-5678"
+
+cleanupTests

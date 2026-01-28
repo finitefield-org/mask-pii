@@ -1,0 +1,15 @@
+name: mask_pii
+version: 0.2.0
+
+description: >
+  A lightweight, customizable Crystal library for masking PII such as email addresses and phone numbers.
+
+authors:
+  - Finite Field, K.K.
+
+homepage: https://finitefield.org/en/oss/mask-pii
+repository: https://github.com/finitefield-org/mask-pii
+
+license: MIT
+
+crystal: ">= 1.0.0"

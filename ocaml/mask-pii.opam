@@ -1,0 +1,32 @@
+opam-version: "2.0"
+name: "mask-pii"
+version: "0.2.0"
+maintainer: "dev@finitefield.org"
+authors: "Finite Field, K.K."
+license: "MIT"
+homepage: "https://finitefield.org/en/oss/mask-pii"
+bug-reports: "https://github.com/finitefield-org/mask-pii/issues"
+repository: "https://github.com/finitefield-org/mask-pii"
+dev-repo: "git+https://github.com/finitefield-org/mask-pii.git"
+
+synopsis: "Mask email addresses and phone numbers in plain text"
+description: """
+A lightweight, customizable OCaml library for masking Personally Identifiable
+Information (PII) such as email addresses and phone numbers without regex.
+"""
+
+depends: [
+  "ocaml" {>= "4.14.0"}
+  "dune" {>= "3.10"}
+  "alcotest" {with-test}
+]
+
+build: [
+  ["dune" "build" "-p" name "-j" jobs]
+]
+
+run-test: [
+  ["dune" "runtest" "-p" name "-j" jobs]
+]
+
+x-keywords: ["pii" "masking" "email" "phone" "privacy"]

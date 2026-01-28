@@ -1,0 +1,15 @@
+use fmt;
+use maskpii;
+
+export fn main() void = {
+	let m = maskpii::new();
+	maskpii::mask_emails(&m);
+	maskpii::mask_phones(&m);
+	maskpii::with_mask_char(&m, '#');
+
+	let input = "Contact: alice@example.com or 090-1234-5678.";
+	let output = maskpii::process(&m, input)!;
+	defer free(output);
+
+	fmt::println(output);
+};

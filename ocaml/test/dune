@@ -1,0 +1,4 @@
+(test
+ (name test_mask_pii)
+ (modules test_mask_pii)
+ (libraries alcotest mask_pii))

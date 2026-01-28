@@ -1,0 +1,12 @@
+{
+  "name": "mask-pii",
+  "description": "A lightweight, configurable D library for masking emails and phone numbers.",
+  "authors": ["Finite Field, K.K."],
+  "license": "MIT",
+  "homepage": "https://finitefield.org/en/oss/mask-pii",
+  "sourceUrl": "https://github.com/finitefield-org/mask-pii",
+  "copyright": "Copyright (c) 2026 Finite Field, K.K.",
+  "targetType": "library",
+  "sourcePaths": ["source"],
+  "keywords": ["pii", "masking", "email", "phone", "privacy"]
+}

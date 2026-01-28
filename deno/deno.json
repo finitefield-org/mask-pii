@@ -1,0 +1,21 @@
+{
+  "name": "mask-pii",
+  "version": "0.2.0",
+  "description": "A lightweight Deno module for masking emails and phone numbers.",
+  "exports": "./mod.ts",
+  "license": "MIT",
+  "homepage": "https://finitefield.org/en/oss/mask-pii",
+  "repository": "https://github.com/finitefield-org/mask-pii",
+  "issues": "https://github.com/finitefield-org/mask-pii/issues",
+  "keywords": [
+    "pii",
+    "masking",
+    "email",
+    "phone",
+    "privacy"
+  ],
+  "tasks": {
+    "test": "deno test",
+    "check": "deno check mod.ts"
+  }
+}

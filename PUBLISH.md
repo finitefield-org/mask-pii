@@ -113,6 +113,21 @@ Optional validate (non-strict)
 make publish-php
 ```
 
+## Zsh (Antigen)
+
+Registration
+- Ensure the plugin file `zsh/mask-pii.plugin.zsh` is in the repository.
+- Users can install via Antigen or local checkout.
+
+Publish
+- Tag the release with the version in `VERSION`.
+- Push the tag to GitHub for plugin managers to pick it up.
+
+Dry run
+```bash
+make publish-zsh-dry
+```
+
 ## Julia (General Registry via Pkg)
 
 Registration
@@ -134,6 +149,66 @@ Dry run
 ```bash
 make publish-elixir-dry
 ```
+
+## PowerShell (PowerShell Gallery)
+
+Registration
+- Create an account on PowerShell Gallery and obtain an API key.
+
+Publish
+```bash
+make publish-powershell
+```
+
+Dry run
+```bash
+make publish-powershell-dry
+```
+
+## OCaml (opam)
+
+Registration
+- Create an opam package and submit it to opam-repository.
+- Ensure the package version matches `VERSION`.
+
+Publish
+```bash
+make publish-ocaml
+```
+
+Dry run
+```bash
+make publish-ocaml-dry
+```
+
+## Crystal (shards)
+
+Registration
+- Push the repository to GitHub.
+- Ensure `crystal/shard.yml` exists and version matches `VERSION`.
+
+Publish
+- Tag the release with the version in `VERSION`.
+- Push the tag to GitHub for shards to pick it up.
+
+Dry run
+```bash
+make publish-crystal-dry
+```
+
+## Common Lisp (Quicklisp)
+
+Registration
+- Ensure `common-lisp/mask-pii.asd` loads via ASDF.
+- Submit the project to Quicklisp for inclusion.
+
+Publish
+- Tag the release with the version in `VERSION`.
+
+Dry run
+```bash
+make publish-common-lisp-dry
+```
   - For this repository, use the subdir comment: `@JuliaRegistrator register subdir=julia`
 
 Publish
@@ -143,4 +218,35 @@ Publish
 Dry run
 ```bash
 make publish-julia-dry
+```
+
+## Racket (Racket package catalog)
+
+Registration
+- Submit the repository to the Racket package catalog.
+- Ensure the package metadata in `racket/info.rkt` is up to date.
+
+Publish
+```bash
+make publish-racket
+```
+
+Dry run
+```bash
+make publish-racket-dry
+```
+
+## Red (Red package system)
+
+Registration
+- Red packages are distributed as source files. Ensure the `red/` folder is included in the repository.
+
+Publish
+```bash
+make publish-red
+```
+
+Dry run
+```bash
+make publish-red-dry
 ```

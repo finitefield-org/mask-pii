@@ -1,0 +1,10 @@
+Package mask_pii 0.2.0
+Meta platform tcl
+Meta summary "Mask PII (emails and phone numbers)."
+Meta description "Lightweight Tcl package for masking PII in strings."
+Meta license MIT
+Meta homepage https://finitefield.org/en/oss/mask-pii
+Meta repository https://github.com/finitefield-org/mask-pii
+Meta issues https://github.com/finitefield-org/mask-pii/issues
+Meta keywords {pii masking email phone privacy}
+Require Tcl 8.6

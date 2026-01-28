@@ -1,0 +1,9 @@
+[package]
+name = "mask-pii"
+version = "0.2.0"
+description = "Lightweight, customizable PII masking for emails and phone numbers."
+license = "MIT"
+homepage = "https://finitefield.org/en/oss/mask-pii"
+repository = "https://github.com/finitefield-org/mask-pii"
+issues = "https://github.com/finitefield-org/mask-pii/issues"
+keywords = ["pii", "masking", "email", "phone", "privacy"]

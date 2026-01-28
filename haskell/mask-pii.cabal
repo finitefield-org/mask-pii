@@ -1,0 +1,39 @@
+cabal-version: 2.2
+name: mask-pii
+version: 0.2.0
+synopsis: Lightweight, customizable PII masking for emails and phone numbers.
+description:
+  mask-pii is a lightweight, customizable library for masking Personally
+  Identifiable Information (PII) such as email addresses and phone numbers.
+  It focuses on safe, predictable masking for logging and data pipelines.
+  .
+  Keywords: pii, masking, email, phone, privacy.
+homepage: https://finitefield.org/en/oss/mask-pii
+bug-reports: https://github.com/finitefield-org/mask-pii/issues
+license: MIT
+license-file: LICENSE.md
+author: Finite Field, K.K.
+maintainer: Finite Field, K.K.
+category: Security
+build-type: Simple
+extra-source-files:
+  README.md
+extra-doc-files:
+  CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/finitefield-org/mask-pii
+
+library
+  exposed-modules: MaskPII
+  hs-source-dirs: src
+  build-depends: base >=4.14 && <5, array >=0.5 && <0.6
+  default-language: Haskell2010
+
+test-suite mask-pii-test
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is: Spec.hs
+  build-depends: base >=4.14 && <5, hspec >=2.7 && <3, mask-pii, array >=0.5 && <0.6
+  default-language: Haskell2010
