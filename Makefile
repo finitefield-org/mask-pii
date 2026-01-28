@@ -1,8 +1,8 @@
-.PHONY: test test-rust test-ruby publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-all publish-all-dry
+.PHONY: test test-rust test-ruby test-go publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-all publish-all-dry
 
 GEM_VERSION := $(shell cd ruby && ruby -r./lib/mask_pii/version -e 'print MaskPII::VERSION')
 
-test: test-rust test-ruby
+test: test-rust test-ruby test-go
 
 # Run Rust tests
 
@@ -13,6 +13,11 @@ test-rust:
 
 test-ruby:
 	cd ruby && ruby -Ilib -Itest test/test_mask_pii.rb
+
+# Run Go tests
+
+test-go:
+	cd go && go test ./...
 
 # Build and publish the Ruby gem
 
