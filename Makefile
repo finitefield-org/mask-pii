@@ -129,10 +129,12 @@ publish-julia-dry:
 
 publish-elixir:
 	cd elixir && mix local.hex --force
+	cd elixir && mix deps.get
 	cd elixir && mix hex.publish
 
 publish-elixir-dry:
 	cd elixir && mix local.hex --force
+	cd elixir && mix deps.get
 	cd elixir && mix hex.publish --dry-run
 
 publish-all: publish-rust publish-ruby publish-go publish-python publish-php publish-swift publish-julia publish-elixir

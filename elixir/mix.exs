@@ -7,7 +7,9 @@ defmodule MaskPii.MixProject do
       version: "0.2.0",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
-      deps: [],
+      deps: [
+        {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      ],
       description: "A lightweight library to mask PII (emails and phone numbers).",
       source_url: "https://github.com/finitefield-org/mask-pii",
       homepage_url: "https://finitefield.org/en/oss/mask-pii",
@@ -33,8 +35,6 @@ defmodule MaskPii.MixProject do
       files: [
         "lib",
         "README.md",
-        "LICENSE",
-        "LICENSE.txt",
         "LICENSE.md",
         "mix.exs"
       ],
