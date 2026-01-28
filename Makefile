@@ -1,9 +1,9 @@
-.PHONY: test test-rust test-ruby test-go publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-all publish-all-dry
+.PHONY: test test-rust test-ruby test-go test-python publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-all publish-all-dry
 
 GEM_VERSION := $(shell cd ruby && ruby -r./lib/mask_pii/version -e 'print MaskPII::VERSION')
 VERSION := $(shell cat VERSION)
 
-test: test-rust test-ruby test-go
+test: test-rust test-ruby test-go test-python
 
 # Run Rust tests
 
@@ -19,6 +19,11 @@ test-ruby:
 
 test-go:
 	cd go && go test ./...
+
+# Run Python tests
+
+test-python:
+	cd python && python3 -m unittest discover -s tests
 
 # Build and publish the Ruby gem
 
@@ -49,6 +54,14 @@ publish-go-dry:
 	@echo "git tag -a go/v$(VERSION) -m \"go v$(VERSION)\""
 	@echo "git push origin go/v$(VERSION)"
 
-publish-all: publish-rust publish-ruby publish-go
+publish-python:
+	cd python && python3 -m build
+	cd python && python3 -m twine upload dist/*
 
-publish-all-dry: publish-rust-dry publish-ruby-dry publish-go-dry
+publish-python-dry:
+	cd python && python3 -m build
+	cd python && python3 -m twine check dist/*
+
+publish-all: publish-rust publish-ruby publish-go publish-python
+
+publish-all-dry: publish-rust-dry publish-ruby-dry publish-go-dry publish-python-dry
