@@ -118,6 +118,7 @@ make publish-php
 Registration
 - Create a Julia package repository and ensure `Project.toml` is present.
 - Use Registrator.jl to open a registration pull request to the General registry.
+  - For this repository, use the subdir comment: `@JuliaRegistrator register subdir=julia`
 
 Publish
 - Tag the release with the version in `VERSION`.

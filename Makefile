@@ -110,9 +110,11 @@ publish-swift-dry:
 publish-julia:
 	@echo "Julia packages are registered via the General Registry."
 	@echo "Use Registrator.jl on the repository and tag the release."
+	@echo "For this repository, comment: @JuliaRegistrator register subdir=julia"
 
 publish-julia-dry:
 	@echo "Julia publish dry run: no operation."
+	@echo "For this repository, comment: @JuliaRegistrator register subdir=julia"
 
 publish-all: publish-rust publish-ruby publish-go publish-python publish-php publish-swift publish-julia
 
