@@ -22,7 +22,8 @@ publish-ruby:
 
 publish-ruby-dry:
 	cd ruby && gem build mask-pii.gemspec
-	cd ruby && gem push --dry-run mask-pii-$(GEM_VERSION).gem
+	cd ruby && gem specification mask-pii-$(GEM_VERSION).gem > /dev/null
+	cd ruby && gem install --local --no-document --ignore-dependencies mask-pii-$(GEM_VERSION).gem
 
 .PHONY: publish-rust
 
