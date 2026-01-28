@@ -1,6 +1,7 @@
-.PHONY: test test-rust test-ruby test-go publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-all publish-all-dry
+.PHONY: test test-rust test-ruby test-go publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-all publish-all-dry
 
 GEM_VERSION := $(shell cd ruby && ruby -r./lib/mask_pii/version -e 'print MaskPII::VERSION')
+VERSION := $(shell cat VERSION)
 
 test: test-rust test-ruby test-go
 
@@ -40,6 +41,14 @@ publish-rust:
 publish-rust-dry:
 	cd rust && cargo publish --dry-run
 
-publish-all: publish-rust publish-ruby
+publish-go:
+	git tag -a go/v$(VERSION) -m "go v$(VERSION)"
+	git push origin go/v$(VERSION)
 
-publish-all-dry: publish-rust-dry publish-ruby-dry
+publish-go-dry:
+	@echo "git tag -a go/v$(VERSION) -m \"go v$(VERSION)\""
+	@echo "git push origin go/v$(VERSION)"
+
+publish-all: publish-rust publish-ruby publish-go
+
+publish-all-dry: publish-rust-dry publish-ruby-dry publish-go-dry
