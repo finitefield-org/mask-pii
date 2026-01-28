@@ -1,4 +1,8 @@
 AGENTS.md
+.DS_Store
+tmp/
+*.tmp
+*.log
 
 # Python
 .venv/
