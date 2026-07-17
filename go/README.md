@@ -4,8 +4,8 @@ Version: 0.2.0
 
 A lightweight, customizable Go library for masking Personally Identifiable Information (PII) such as **email addresses** and **phone numbers**.
 
-🌐 Official website: https://finitefield.org/en/oss/mask-pii  
-🏢 Developed by: Finite Field, K.K.  
+- 🌐 Go package website: https://finitefield.org/oss/mask-pii/go/
+- 🏢 Developed by: Finite Field, K.K.
 
 ## Features
 

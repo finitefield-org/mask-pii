@@ -1,4 +1,7 @@
 // Package maskpii provides a configurable masker for emails and phone numbers.
+//
+// Documentation and examples are available at
+// https://finitefield.org/oss/mask-pii/go/.
 package maskpii
 
 import "strings"
