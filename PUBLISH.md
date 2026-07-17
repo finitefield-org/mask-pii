@@ -1,533 +1,503 @@
-# mask-pii package registry rollout
+# mask-pii 公式パッケージ登録・進捗管理
 
-Last audited: 2026-07-17 (JST)
+最終調査日: 2026-07-17（JST）
 
-This document is the implementation contract and progress tracker for publishing every language implementation in this repository to every applicable official or ecosystem-standard public package registry or catalog.
+この文書は、このリポジトリに存在するすべての言語実装を、利用可能な公式またはエコシステム標準のパッケージレジストリ／カタログへ登録するための実行仕様兼進捗表です。
 
-## Goal
+## 目的
 
-- Make every implementation discoverable through the package distribution mechanism developers normally use for that language.
-- Keep release versions aligned with the repository-level `VERSION` unless a registry already contains a historical exception.
-- Record authentication, validation, publication, verification, and follow-up work separately so that a successful upload is not mistaken for a complete release.
-- Never overwrite or move a version that has already been observed by a public registry, proxy, or user.
+- 各言語の利用者が通常使うパッケージ取得方法で、すべての実装を発見・導入できるようにする。
+- 既存の歴史的な例外を除き、公開バージョンをリポジトリ直下の `VERSION` にそろえる。
+- 認証、事前検証、公開、インストール確認、公開後の改善を個別に記録する。
+- 公開レジストリ、プロキシ、利用者から参照済みのバージョンやタグを上書き・移動しない。
 
-## Scope and definitions
+## 対象範囲と定義
 
-The repository currently contains 36 language implementations. A target is included when it is one of the following:
+このリポジトリには現在36言語の実装があります。次のいずれかに該当する公開先を対象とします。
 
-1. An official language package registry or catalog.
-2. The ecosystem's de facto standard public registry when the language itself does not operate one.
-3. An official project directory, such as the Hare Project Library, when no package registry exists.
+1. 言語公式のパッケージレジストリまたはカタログ。
+2. 言語公式のレジストリがない場合、そのエコシステムで標準的に使われる公開レジストリ。
+3. パッケージレジストリがない場合の公式プロジェクト一覧（Hare Project Libraryなど）。
 
-Community package managers that install directly from Git but have no authoritative catalog are documented as distribution channels, not as registry publication targets.
+Gitリポジトリを直接指定して取得するだけで、権威ある公開カタログを持たないコミュニティ製パッケージマネージャーは、配布方法として記録しますが、レジストリ登録対象には数えません。
 
-### Explicit non-goals
+### 対象外
 
-- This document does not authorize publishing, creating accounts, reserving namespaces, or changing external package ownership without an explicit execution request.
-- This document does not require all languages to use identical package names; registry namespace collisions may require scoped or suffixed names.
-- This document does not treat a GitHub tag alone as a registry listing when an applicable public registry or catalog exists.
-- This document does not use `make publish-all`; each irreversible publication must be executed and verified independently.
+- この文書だけでは、外部サービスへの公開、アカウント作成、名前空間予約、所有権変更を許可しない。実行には個別の明示的な依頼が必要。
+- すべての言語で同一パッケージ名を強制しない。名前の衝突時はスコープ付き名称や接尾辞を使用する。
+- 適用可能な公開レジストリ／カタログがある場合、GitHubタグだけでは登録完了としない。
+- `make publish-all` は使用しない。不可逆な公開操作は、言語ごとに実行・確認する。
 
-## Status model
+## ステータス定義
 
-| Status | Meaning |
+| ステータス | 意味 |
 | --- | --- |
-| `DONE` | Package/catalog entry is public, installable, owned by Finite Field, and its public page passed the quality checks. |
-| `PARTIAL` | Public entry exists, but documentation, license, version, ownership, or install verification is incomplete. |
-| `READY` | Manifest and package are ready; only credentials or the irreversible publish/submit action remains. |
-| `BLOCKED` | Metadata, namespace, monorepo layout, registry configuration, or policy work is required before publication. |
-| `N/A` | No applicable official or ecosystem-standard public registry/catalog exists. |
+| `DONE` | 公開・導入可能で、Finite Fieldが所有し、公開ページの品質確認まで完了。 |
+| `PARTIAL` | 公開ページは存在するが、文書、ライセンス、バージョン、所有権、導入確認のいずれかが未完了。 |
+| `READY` | マニフェストとパッケージは準備済みで、認証または最終公開／申請だけが残っている。 |
+| `BLOCKED` | メタデータ、名前空間、モノレポ構成、レジストリ設定、ポリシー対応が必要。 |
+| `N/A` | 適用可能な公式またはエコシステム標準の公開レジストリ／カタログがない。 |
 
-For progress updates, change both the status in the master table and the task checkboxes in the corresponding runbook. Add the verification date and public URL when a target reaches `DONE`.
+進捗更新時は、マスター進捗表のステータスと、該当runbookのチェックボックスを両方更新します。`DONE` へ変更する際は、確認日と公開URLも記録します。
 
-## Current summary
+## 現在の集計
 
-| Metric | Count |
+| 項目 | 件数 |
 | --- | ---: |
-| Language implementations | 36 |
-| Registry/catalog targets | 25 |
-| Public entries created | 7 |
-| Fully complete (`DONE`) | 5 |
-| Public but requiring follow-up (`PARTIAL`) | 2 |
-| Registry/catalog targets still unpublished | 18 |
-| No applicable registry/catalog (`N/A`) | 11 |
+| 言語実装 | 36 |
+| レジストリ／カタログ対象 | 25 |
+| 公開ページ作成済み | 7 |
+| 完了（`DONE`） | 5 |
+| 公開済み・要改善（`PARTIAL`） | 2 |
+| 未公開の登録対象 | 18 |
+| 対象レジストリなし（`N/A`） | 11 |
 
-Current public entries:
+公開済みの内訳:
 
-- `DONE`: Rust, Ruby, Python, PHP, Elixir.
-- `PARTIAL`: Go (`v0.2.0` is public but the tagged artifact has no detected license, so documentation is hidden); Julia (General entry exists at `0.1.0`, behind repository version `0.2.0`).
+- `DONE`: Rust、Ruby、Python、PHP、Elixir。
+- `PARTIAL`: Go（`v0.2.0` は公開済みだが、タグ内のライセンスが検出されず文書が非表示）、Julia（Generalには `0.1.0` が登録済みで、リポジトリの `0.2.0` より古い）。
 
-## Master progress tracker
+## マスター進捗表
 
-| Language | Required target | Package identifier | Status | Published version | Owner | Next action / evidence |
+| 言語 | 登録先 | パッケージ識別子 | 状態 | 公開版 | 担当 | 次の作業／根拠 |
 | --- | --- | --- | --- | --- | --- | --- |
-| AWK | None; Git source distribution | `awk/` | `N/A` | — | — | Keep Git install instructions; `awk-pkg` is optional community distribution. |
-| Bash | None; Git/bpkg source distribution | `finitefield-org/mask-pii/bash` | `N/A` | — | — | Keep tagged Git installation instructions. |
-| Bun | npm | Recommended: `@finitefield-org/mask-pii-bun` | `BLOCKED` | — | Unassigned | Reserve scope/name and change manifest; current unscoped name collides and duplicates JavaScript. |
-| Carbon | None; packaging remains experimental | `carbon/` | `N/A` | — | — | Re-audit when Carbon defines a stable public package registry. |
-| Common Lisp | Quicklisp | System `mask-pii` | `BLOCKED` | — | Unassigned | Validate monorepo discovery, then submit project to Quicklisp. |
-| Crystal | Official Shards workflow plus a standard shard index | Shard `mask_pii` | `BLOCKED` | — | Unassigned | Validate monorepo/subdirectory consumption; submit to a shard index only after Git install works. |
-| D | DUB package registry | `mask-pii` | `BLOCKED` | — | Unassigned | Resolve DUB's repository-root requirement for the current `d/` subdirectory; do not use the stale `dub publish` Makefile target. |
-| Deno | JSR | Recommended: `@finitefield/mask-pii` | `BLOCKED` | — | Unassigned | Reserve JSR scope and replace unscoped `deno.json` name. |
-| Elixir | Hex | `mask_pii` | `DONE` | `0.2.0` | Finite Field | Verified 2026-07-17: https://hex.pm/packages/mask_pii |
-| Fish | None; Fisher installs from Git | `finitefield-org/mask-pii` | `N/A` | — | — | Keep tagged Git/Fisher instructions. |
-| Go | Go Module Proxy and pkg.go.dev | `github.com/finitefield-org/mask-pii/go` | `PARTIAL` | `0.2.0` | Finite Field | Verified 2026-07-17: https://pkg.go.dev/github.com/finitefield-org/mask-pii/go; fix license/docs in the next coordinated release. |
-| Groovy | Maven Central | `org.finitefield:mask-pii` | `BLOCKED` | — | Unassigned | Configure Central namespace, signing, credentials, and a remote publishing repository. |
-| Hare | Official Hare Project Library | `maskpii` | `READY` | Git | Unassigned | Submit a patch to the hare-dev mailing list after validating HAREPATH instructions. |
-| Haskell | Hackage | `mask-pii` | `READY` | — | Unassigned | Validate source distribution and publish with a Hackage account. |
-| JavaScript | npm | Recommended: `@finitefield-org/mask-pii` | `BLOCKED` | — | Unassigned | The unscoped `mask-pii` name belongs to another publisher; reserve scope and update manifest/import docs. |
-| Julia | General Registry | `MaskPII` | `PARTIAL` | `0.1.0` | Finite Field | Verified 2026-07-17: https://juliahub.com/ui/Packages/General/MaskPII; bring to the coordinated version in the next release. |
-| Lua | LuaRocks | `mask-pii` | `BLOCKED` | — | Unassigned | Fix/verify the monorepo source layout in the rockspec before upload. |
-| Nim | Nim package list/Nimble | `mask_pii` | `BLOCKED` | — | Unassigned | Confirm and encode the `nim/` subdirectory in the package-list submission. |
-| Nushell | None; module distribution is Git/file based | `nushell/` | `N/A` | — | — | Keep Git installation instructions; re-audit if an official registry is introduced. |
-| OCaml | opam repository | `mask-pii` | `BLOCKED` | — | Unassigned | Create the opam-repository version directory with immutable URL and checksum. |
-| Odin | None for third-party packages | `odin/mask_pii` | `N/A` | — | — | Keep collection-path installation instructions. |
-| Perl | CPAN/PAUSE | Distribution `Mask-PII` / module `Mask::PII` | `READY` | — | Unassigned | Obtain PAUSE namespace permission and upload the validated distribution. |
-| PHP | Packagist | `finitefield-org/mask-pii` | `DONE` | `0.2.0` | Finite Field | Verified 2026-07-17: https://packagist.org/packages/finitefield-org/mask-pii |
-| Pony | None; Corral resolves source-control dependencies | `pony/mask_pii` | `N/A` | — | — | Keep tagged Git/Corral instructions. |
-| PowerShell | PowerShell Gallery | `MaskPII` | `READY` | — | Unassigned | Validate the manifest, publish with an API key, and install-test in a clean scope. |
-| Python | PyPI | `mask-pii` | `DONE` | `0.2.0` | Finite Field | Verified 2026-07-17: https://pypi.org/project/mask-pii/ |
-| R | CRAN | `maskpii` | `BLOCKED` | — | Unassigned | Resolve all `R CMD check --as-cran` errors/notes and confirm CRAN license format. |
-| Racket | Racket Package Catalog | `mask-pii` | `BLOCKED` | — | Unassigned | Add package-local license and validate a catalog source that targets the `racket/` subdirectory. |
-| Red | None; source-file distribution | `red/mask-pii.red` | `N/A` | — | — | Keep Git/file installation instructions. |
-| Ruby | RubyGems | `mask-pii` | `DONE` | `0.2.0` | Finite Field | Verified 2026-07-17: https://rubygems.org/gems/mask-pii |
-| Rust | crates.io | `mask-pii` | `DONE` | `0.2.0` | Finite Field | Verified 2026-07-17: https://crates.io/crates/mask-pii |
-| Swift | Swift Package Index; SwiftPM distribution remains Git based | Repository URL | `READY` | Git tag `v0.2.0` | Unassigned | Submit https://github.com/finitefield-org/mask-pii to Swift Package Index and confirm build compatibility. |
-| Tcl | None authoritative; Teapot/ActiveState is optional | Package `mask_pii` | `N/A` | — | — | Keep `pkgIndex.tcl`/Git instructions; treat third-party catalogs as optional. |
-| V | VPM | A VPM-compatible owner/package name | `BLOCKED` | — | Unassigned | Determine whether VPM supports a monorepo subdirectory; otherwise split or mirror the V package. |
-| Zig | None; official package manager resolves URLs/hashes | `zig/` | `N/A` | — | — | Document URL/hash dependency; do not invent a registry submission. |
-| Zsh | None; Antigen and similar managers install from Git | `finitefield-org/mask-pii` | `N/A` | — | — | Keep tagged Git instructions. |
-
-## Global release rules
-
-### Version policy
-
-1. The desired current release is the value in `VERSION` (`0.2.0` at the last audit).
-2. Do not republish or replace an existing name/version pair.
-3. Do not move `v0.2.0`, `go/v0.2.0`, or any version already fetched by a registry/proxy.
-4. Initial registry entries should use existing `0.2.0` artifacts when they pass that registry's validation without source changes.
-5. Changes required to make a package valid must be accumulated for a coordinated `0.2.1` release across language manifests. Historical exceptions, currently Julia `0.1.0`, must be recorded rather than hidden.
-
-### Credential and permission policy
-
-- Never place tokens, API keys, passwords, OTPs, signing keys, or generated credential files in this repository or command history.
-- Prefer OIDC/trusted publishing when the registry officially supports it; otherwise use a narrowly scoped token stored in the operator's credential store or CI secrets.
-- Enable MFA for every publisher account that supports it.
-- Record package ownership by account/organization name, not by secret or email verification data.
-- A human operator must confirm the final irreversible publish/upload/submit action.
-
-### Mandatory preflight for every target
+| AWK | なし・Gitソース配布 | `awk/` | `N/A` | — | — | Git導入手順を維持する。`awk-pkg` は任意のコミュニティ配布。 |
+| Bash | なし・Git/bpkg配布 | `finitefield-org/mask-pii/bash` | `N/A` | — | — | タグ付きGit導入手順を維持する。 |
+| Bun | npm | 推奨: `@finitefield-org/mask-pii-bun` | `BLOCKED` | — | 未割当 | スコープと名前を確保し、マニフェストを変更する。現在の非スコープ名は衝突し、JavaScript版とも重複。 |
+| Carbon | なし・パッケージングは実験段階 | `carbon/` | `N/A` | — | — | 安定した公開レジストリが定義された時点で再調査する。 |
+| Common Lisp | Quicklisp | システム名 `mask-pii` | `BLOCKED` | — | 未割当 | モノレポ内ASDFの検出可否を確認後、Quicklispへ申請する。 |
+| Crystal | Shards＋標準的な検索インデックス | shard名 `mask_pii` | `BLOCKED` | — | 未割当 | サブディレクトリから導入できることを確認してからインデックスへ申請する。 |
+| D | DUB | `mask-pii` | `BLOCKED` | — | 未割当 | DUBのリポジトリ直下要件と現在の `d/` 配置を解決する。古い `dub publish` ターゲットは使わない。 |
+| Deno | JSR | 推奨: `@finitefield/mask-pii` | `BLOCKED` | — | 未割当 | JSRスコープを確保し、非スコープの `deno.json` 名を変更する。 |
+| Elixir | Hex | `mask_pii` | `DONE` | `0.2.0` | Finite Field | 2026-07-17確認: https://hex.pm/packages/mask_pii |
+| Fish | なし・FisherはGitから取得 | `finitefield-org/mask-pii` | `N/A` | — | — | Git/Fisher導入手順を維持する。 |
+| Go | Go Module Proxy／pkg.go.dev | `github.com/finitefield-org/mask-pii/go` | `PARTIAL` | `0.2.0` | Finite Field | 2026-07-17確認: https://pkg.go.dev/github.com/finitefield-org/mask-pii/go 。次回リリースでライセンスと文書を修正。 |
+| Groovy | Maven Central | `org.finitefield:mask-pii` | `BLOCKED` | — | 未割当 | Centralの名前空間、署名、認証情報、公開先リポジトリを設定する。 |
+| Hare | 公式Hare Project Library | `maskpii` | `READY` | Git | 未割当 | `HAREPATH` 手順確認後、hare-devメーリングリストへパッチを送る。 |
+| Haskell | Hackage | `mask-pii` | `READY` | — | 未割当 | source distributionを検証し、Hackageアカウントで公開する。 |
+| JavaScript | npm | 推奨: `@finitefield-org/mask-pii` | `BLOCKED` | — | 未割当 | 非スコープ名 `mask-pii` は別所有者のため、スコープを確保しマニフェストと導入手順を更新する。 |
+| Julia | General Registry | `MaskPII` | `PARTIAL` | `0.1.0` | Finite Field | 2026-07-17確認: https://juliahub.com/ui/Packages/General/MaskPII 。次回リリースで共通バージョンへ合わせる。 |
+| Lua | LuaRocks | `mask-pii` | `BLOCKED` | — | 未割当 | rockspecのモノレポ内ソースパスを修正・検証する。 |
+| Nim | Nim package list／Nimble | `mask_pii` | `BLOCKED` | — | 未割当 | package-list申請で `nim/` サブディレクトリを扱えるか確認する。 |
+| Nushell | なし・Git／ファイル配布 | `nushell/` | `N/A` | — | — | Git導入手順を維持し、公式レジストリ登場時に再調査する。 |
+| OCaml | opam repository | `mask-pii` | `BLOCKED` | — | 未割当 | 不変URLとチェックサムを持つopam-repository用バージョンディレクトリを作る。 |
+| Odin | サードパーティ用レジストリなし | `odin/mask_pii` | `N/A` | — | — | collection-pathによる導入手順を維持する。 |
+| Perl | CPAN／PAUSE | distribution `Mask-PII`／module `Mask::PII` | `READY` | — | 未割当 | PAUSE名前空間権限を取得し、検証済みdistributionをアップロードする。 |
+| PHP | Packagist | `finitefield-org/mask-pii` | `DONE` | `0.2.0` | Finite Field | 2026-07-17確認: https://packagist.org/packages/finitefield-org/mask-pii |
+| Pony | なし・CorralはGit依存を解決 | `pony/mask_pii` | `N/A` | — | — | タグ付きGit／Corral導入手順を維持する。 |
+| PowerShell | PowerShell Gallery | `MaskPII` | `READY` | — | 未割当 | マニフェスト検証後、APIキーで公開し、クリーン環境で導入確認する。 |
+| Python | PyPI | `mask-pii` | `DONE` | `0.2.0` | Finite Field | 2026-07-17確認: https://pypi.org/project/mask-pii/ |
+| R | CRAN | `maskpii` | `BLOCKED` | — | 未割当 | `R CMD check --as-cran` の問題を解消し、CRAN用ライセンス形式を確認する。 |
+| Racket | Racket Package Catalog | `mask-pii` | `BLOCKED` | — | 未割当 | パッケージ内ライセンスを追加し、`racket/` を指すカタログソースを検証する。 |
+| Red | なし・ソースファイル配布 | `red/mask-pii.red` | `N/A` | — | — | Git／ファイル導入手順を維持する。 |
+| Ruby | RubyGems | `mask-pii` | `DONE` | `0.2.0` | Finite Field | 2026-07-17確認: https://rubygems.org/gems/mask-pii |
+| Rust | crates.io | `mask-pii` | `DONE` | `0.2.0` | Finite Field | 2026-07-17確認: https://crates.io/crates/mask-pii |
+| Swift | Swift Package Index（SwiftPM配布はGit） | リポジトリURL | `READY` | Gitタグ `v0.2.0` | 未割当 | Swift Package Indexへ申請し、ビルド互換性を確認する。 |
+| Tcl | 権威あるレジストリなし | パッケージ名 `mask_pii` | `N/A` | — | — | `pkgIndex.tcl`／Git導入を維持し、第三者カタログは任意とする。 |
+| V | VPM | VPM互換のowner/package名 | `BLOCKED` | — | 未割当 | モノレポのサブディレクトリ対応を確認し、非対応なら分離／ミラーする。 |
+| Zig | なし・公式パッケージマネージャーはURL/hash方式 | `zig/` | `N/A` | — | — | URL/hash依存を文書化し、存在しないレジストリへの申請は行わない。 |
+| Zsh | なし・各種マネージャーはGitから取得 | `finitefield-org/mask-pii` | `N/A` | — | — | タグ付きGit導入手順を維持する。 |
+
+## 共通リリース規則
+
+### バージョン方針
+
+1. 現在の基準バージョンは `VERSION` の値（最終調査時点で `0.2.0`）。
+2. 公開済みの名前／バージョンの組を再公開・置換しない。
+3. `v0.2.0`、`go/v0.2.0`、その他取得済みのタグを移動しない。
+4. ソース変更なしで検証に合格する未登録パッケージは、既存の `0.2.0` を初回公開に使用できる。
+5. 有効なパッケージにするためソースやメタデータ変更が必要な場合は、全言語共通の `0.2.1` リリースへまとめる。Julia `0.1.0` のような既存例外は明記する。
+
+### 認証情報と権限
+
+- トークン、APIキー、パスワード、OTP、署名鍵、認証ファイルをリポジトリやコマンド履歴へ残さない。
+- 公式対応している場合はOIDC／Trusted Publishingを優先し、それ以外は権限を限定したトークンをOSの資格情報ストアまたはCI secretに保存する。
+- 対応サービスではMFAを有効にする。
+- 所有者はアカウント／組織名で記録し、秘密情報や確認用メール情報は記録しない。
+- 不可逆な公開／アップロード／申請の直前に、人間の実行者が対象を確認する。
+
+### 全登録先共通の事前確認
+
+- [ ] 作業ツリーと対象コミットを特定し、無関係な変更を除外した。
+- [ ] パッケージ版が予定版と一致するか、例外を記録した。
+- [ ] 公開物にREADME、再配布可能なライセンス、リポジトリURL、Issue URL、該当言語ページまたは公式プロジェクトページを含めた。
+- [ ] 対象言語の単体テストが成功した。
+- [ ] レジストリ固有のdry-run／パッケージ検査が成功した。
+- [ ] 公開ファイルにsecret、キャッシュ、認証情報、不要な巨大ファイルが含まれないことを確認した。
+- [ ] 公開メタデータ変更前にパッケージ名と名前空間の所有権を確認した。
+- [ ] クリーンな一時プロジェクトで、公開識別子を使って導入・実行できた。
+- [ ] 対応フィールドがある場合、公開ページの版、ライセンス、リポジトリ、finitefield.orgリンクを確認した。ない場合は公開README／API文書を確認した。
+- [ ] この文書へ状態、公開URL、確認日、残作業を反映した。
+
+## 実行順序
+
+不可逆な公開は1件ずつ行い、導入確認が終わるまで次へ進みません。
+
+1. ソース変更不要の `READY`: Haskell、Hare、Perl、PowerShell、Swift Package Index。
+2. メタデータ／構成変更が必要な `BLOCKED`: D、Deno、JavaScript、Bun、Groovy、Lua、Nim、OCaml、R、Racket、V、Common Lisp、Crystal。
+3. 共通 `0.2.1` 品質改善リリース: Goのライセンス／文書、Juliaの版統一、手順1〜2で判明した全変更。
+
+## 公開済みパッケージの保守runbook
+
+### Go — Go Module Proxy／pkg.go.dev（`PARTIAL`）
+
+公式資料: [Publishing a module](https://go.dev/doc/modules/publishing)、[pkg.go.devへの追加](https://pkg.go.dev/about)
+
+現状:
+
+- module pathは `go/go.mod` の `github.com/finitefield-org/mask-pii/go`。
+- モノレポ用タグ形式は `go/vX.Y.Z`。
+- `go/v0.2.0` はGo Module Proxyとpkg.go.devで公開済み。
+- pkg.go.devは `License: None detected` と表示し、タグに現在の `go/LICENSE.md` が含まれないため文書を表示していない。
 
-- [ ] Working tree and target commit are identified; unrelated changes are excluded.
-- [ ] Package version matches the intended release or an exception is documented.
-- [ ] Package-local README, redistributable license, repository URL, issue URL, and the applicable finitefield.org language page (or canonical project page) are present in the published artifact.
-- [ ] Unit tests pass for the language implementation.
-- [ ] Registry-specific dry-run/package inspection passes.
-- [ ] Published file list contains source and documentation but no secrets, caches, generated credentials, unrelated language directories, or oversized artifacts.
-- [ ] Package name and namespace ownership are confirmed before editing public metadata.
-- [ ] Installation is tested in a clean temporary project using the exact public package identifier.
-- [ ] Public registry page shows the expected version, license, repository, and finitefield.org link where those metadata fields are supported; otherwise the published README/API documentation is checked.
-- [ ] Status, public URL, verification date, and remaining follow-up are updated in this document.
+- [x] `go/v0.2.0` をGitHubへpushした。
+- [x] `proxy.golang.org` からmoduleを要求した。
+- [x] pkg.go.devで `v0.2.0` を確認した。
+- [ ] 次回タグに `go/LICENSE.md` が含まれることを確認する。
+- [ ] package commentとGo READMEへ `https://finitefield.org/oss/mask-pii/go/` を追加する。
+- [ ] `cd go && go mod tidy && go test ./...` を実行する。
+- [ ] 共通 `0.2.1` コミット承認後に限り `go/v0.2.1` を作成・pushする。
+- [ ] `GOPROXY=https://proxy.golang.org go list -m github.com/finitefield-org/mask-pii/go@v0.2.1` を実行する。
+- [ ] pkg.go.devでライセンス検出と文書表示を確認する。
 
-## Execution order
+`go/v0.2.0` は削除・付け替えしません。
 
-Publish one target at a time in this order. Do not start the next irreversible publication until the previous target has an install verification result.
+### Rust — crates.io（`DONE`）
 
-1. `READY` targets requiring no source change: Haskell, Hare catalog, Perl, PowerShell, Swift Package Index.
-2. `BLOCKED` targets requiring metadata/layout work: D, Deno, JavaScript, Bun, Groovy, Lua, Nim, OCaml, R, Racket, V, Common Lisp, Crystal.
-3. Coordinated `0.2.1` quality release: Go license/documentation, Julia version alignment, and every metadata change accumulated during steps 1–2.
+公式資料: [Cargo publishing](https://doc.rust-lang.org/cargo/reference/publishing.html)
 
-## Registered package maintenance runbooks
+- [x] `mask-pii` `0.2.0` が公開済み。
+- [x] 公開ページのリポジトリ、サイト、ライセンスを確認済み。
+- [ ] 次回は `make publish-rust-dry` と `cargo package --list` を確認後、承認済み所有者で `make publish-rust` を実行する。
+- [ ] クリーンなプロジェクトで `cargo add mask-pii` を確認する。
 
-### Go — Go Module Proxy and pkg.go.dev (`PARTIAL`)
+### Ruby — RubyGems（`DONE`）
 
-Official references: [Publishing a module](https://go.dev/doc/modules/publishing), [pkg.go.dev package addition](https://pkg.go.dev/about).
+公式資料: [Publishing a gem](https://guides.rubygems.org/publishing/)
 
-Current evidence:
+- [x] `mask-pii` `0.2.0` がFinite Field所有で公開済み。
+- [ ] 次回は `make publish-ruby-dry` とgem内容を確認後、`make publish-ruby` を実行する。
+- [ ] ローカルgemを使わず `gem install mask-pii -v X.Y.Z` を確認する。
 
-- Module path: `github.com/finitefield-org/mask-pii/go` in `go/go.mod`.
-- Required monorepo tag form: `go/vX.Y.Z`.
-- `go/v0.2.0` is public and resolves through the Go Module Proxy.
-- pkg.go.dev reports `License: None detected`; documentation is hidden because the tag does not contain the current `go/LICENSE.md`.
+### Python — PyPI（`DONE`）
 
-Completed:
+公式資料: [Packaging Python projects](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
 
-- [x] Push `go/v0.2.0` to GitHub.
-- [x] Request the module from `proxy.golang.org`.
-- [x] Confirm `v0.2.0` on pkg.go.dev.
+- [x] `mask-pii` `0.2.0` が公開済み。
+- [ ] 今後はPyPI Trusted Publishingを優先し、手動Twine uploadは代替手段とする。
+- [ ] `make publish-python-dry` でsdistとwheelを検査後、`make publish-python` を実行する。
+- [ ] 新規venvで `python -m pip install --no-cache-dir mask-pii==X.Y.Z` を確認する。
 
-Next coordinated release:
+### PHP — Packagist（`DONE`）
 
-- [ ] Ensure `go/LICENSE.md` is present in the tagged module tree.
-- [ ] Add `https://finitefield.org/oss/mask-pii/go/` to the package comment and Go README.
-- [ ] Run `cd go && go mod tidy && go test ./...`.
-- [ ] Create and push `go/v0.2.1` only after the repository-wide `0.2.1` release commit is approved.
-- [ ] Run `GOPROXY=https://proxy.golang.org go list -m github.com/finitefield-org/mask-pii/go@v0.2.1`.
-- [ ] Confirm pkg.go.dev detects the license and renders documentation.
+公式資料: [Packagistへの登録と更新](https://packagist.org/about)
 
-Never delete or retag `go/v0.2.0`.
+- [x] `finitefield-org/mask-pii` `0.2.0` が公開済み。
+- [x] GitHub連携を確認済み。
+- [ ] 次回は `make publish-php-dry` 後に共通タグをpushし、Packagistへの反映を確認する。
+- [ ] クリーンなプロジェクトで `composer require finitefield-org/mask-pii:X.Y.Z` を確認する。
 
-### Rust — crates.io (`DONE`)
+### Elixir — Hex（`DONE`）
 
-Official reference: [Cargo publishing](https://doc.rust-lang.org/cargo/reference/publishing.html).
+公式資料: [Mix Hex publish](https://hexdocs.pm/hex/Mix.Tasks.Hex.Publish.html)
 
-- [x] Package `mask-pii` version `0.2.0` is public.
-- [x] Public page links to the Finite Field repository/site and shows a redistributable license.
-- [ ] For the next release, run `make publish-rust-dry`, inspect `cargo package --list`, then run `make publish-rust` with the authorized owner account.
-- [ ] After publication, test `cargo add mask-pii` in a clean project.
+- [x] `mask_pii` `0.2.0` が公開済み。
+- [ ] 次回公開前に `make publish-elixir-dry` を実行する。
+- [ ] 対象のクリーンなコミットからのみ `make publish-elixir` を実行する。
+- [ ] `mix hex.info mask_pii X.Y.Z` と新規Mixプロジェクトからの導入を確認する。
 
-### Ruby — RubyGems (`DONE`)
+### Julia — General Registry（`PARTIAL`）
 
-Official reference: [Publishing a gem](https://guides.rubygems.org/publishing/).
+公式資料: [Registrator.jl](https://github.com/JuliaRegistries/Registrator.jl)
 
-- [x] Gem `mask-pii` version `0.2.0` is public and owned by Finite Field.
-- [ ] For the next release, run `make publish-ruby-dry`, inspect the gem specification/file list, then run `make publish-ruby`.
-- [ ] Test `gem install mask-pii -v X.Y.Z` without a local gem file.
+- [x] UUID `e51ab4cc-94ad-4aad-a579-d543f796cd4d` の `MaskPII` `0.1.0` をGeneralへ登録済み。
+- [ ] 次の共通バージョンを決め、`julia/Project.toml` を同じ版へ更新する。
+- [ ] `make publish-julia-dry` と `julia --project=julia -e 'using Pkg; Pkg.test()'` を実行する。
+- [ ] 承認済みリリースコミットへ `@JuliaRegistrator register subdir=julia` とコメントする。
+- [ ] Generalへのmerge後、クリーンなdepotで `Pkg.add("MaskPII")` を確認する。
 
-### Python — PyPI (`DONE`)
+## 未公開レジストリ／カタログのrunbook
 
-Official reference: [Packaging Python projects](https://packaging.python.org/en/latest/tutorials/packaging-projects/).
+### D — DUB（`BLOCKED`）
 
-- [x] Distribution `mask-pii` version `0.2.0` is public.
-- [ ] Prefer PyPI Trusted Publishing for future automation; manual Twine upload remains an approved fallback.
-- [ ] Run `make publish-python-dry`, inspect both sdist and wheel, then run `make publish-python`.
-- [ ] Test `python -m pip install --no-cache-dir mask-pii==X.Y.Z` in a fresh virtual environment.
+公式資料: [Publishing packages](https://dub.pm/dub-guide/publishing/)
 
-### PHP — Packagist (`DONE`)
+DUBはCLIの `dub publish` ではなく、Webサイトへリポジトリを登録しタグを監視する方式です。公式手順はパッケージ定義を登録リポジトリ直下に置く前提ですが、現在は `d/dub.json` 以下にあります。Makefileの `publish-d`／`publish-d-dry` は使用しません。
 
-Official reference: [Packagist package submission and updates](https://packagist.org/about).
+- [ ] DUBアカウントと `mask-pii` 名の空きを確認する。
+- [ ] サブディレクトリを登録できるか、非公開操作での検証またはDUB管理者への確認を行う。
+- [ ] 非対応なら、D専用split／mirrorリポジトリまたは同等の構成変更について承認を得る。
+- [ ] `make test-d`、`cd d && dub build` を実行し、マニフェスト、README、ライセンス、収録ファイルを確認する。
+- [ ] DUB Webサイトへ承認済みのリポジトリURLを登録し、そのリポジトリへ不変のSemVerタグを作る。
+- [ ] クリーンなDプロジェクトで `dub add mask-pii` と `dub test` を確認する。
 
-- [x] Package `finitefield-org/mask-pii` version `0.2.0` is public.
-- [x] GitHub repository integration is present.
-- [ ] For the next release, run `make publish-php-dry`, push the coordinated Git tag, and confirm Packagist ingests it.
-- [ ] Test `composer require finitefield-org/mask-pii:X.Y.Z` in a clean project.
+### Deno — JSR（`BLOCKED`）
 
-### Elixir — Hex (`DONE`)
+公式資料: [JSRへの公開](https://jsr.io/docs/publishing-packages)
 
-Official reference: [Mix Hex publish task](https://hexdocs.pm/hex/Mix.Tasks.Hex.Publish.html).
+JSRはスコープ付き名称が必須ですが、現在の `deno/deno.json` は非スコープの `mask-pii` です。
 
-- [x] Package `mask_pii` version `0.2.0` is public.
-- [ ] Run `make publish-elixir-dry` before every future release.
-- [ ] Publish with `make publish-elixir` only from the intended clean commit.
-- [ ] Test `mix hex.info mask_pii X.Y.Z` and a clean Mix dependency install.
+- [ ] 組織所有のJSRスコープを確保する。第一候補は `@finitefield`。
+- [ ] パッケージ名を承認済み識別子（推奨 `@finitefield/mask-pii`）へ変更する。
+- [ ] `mod.ts`、source、README、licenseの明示的な公開対象を設定する。
+- [ ] 導入／import文書を最終識別子へ更新する。
+- [ ] `deno/` で `deno test`、`deno check mod.ts`、`deno publish --dry-run` を実行する。
+- [ ] GitHub OIDCを優先して公開し、クリーン環境で `deno add jsr:@finitefield/mask-pii@X.Y.Z` を確認する。
 
-### Julia — General Registry (`PARTIAL`)
+Makefileに残る新規 `deno.land/x` 公開手順は古いため使用しません。
 
-Official reference: [Registrator.jl](https://github.com/JuliaRegistries/Registrator.jl).
+### JavaScript — npm（`BLOCKED`）
 
-Current evidence:
+公式資料: [スコープ付きpublic packageの公開](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/)
 
-- Package `MaskPII`, UUID `e51ab4cc-94ad-4aad-a579-d543f796cd4d`, is in General at `0.1.0`.
-- `julia/Project.toml` is still `0.1.0` while repository `VERSION` is `0.2.0`; do not claim Julia `0.2.0` is published.
+非スコープ名 `mask-pii` は別の公開者が所有しています。
 
-Tasks:
+- [ ] Finite Field管理のnpm organization scopeを確認する。推奨名は `@finitefield-org/mask-pii`。
+- [ ] `javascript/package.json` の名前、repository directory、README、テストを更新する。
+- [ ] `publishConfig.access = "public"` と必要に応じて明示的な `files` を追加する。
+- [ ] `javascript/` で `npm test` と `npm publish --dry-run` を行い、tarball内容を確認する。
+- [ ] MFA／Trusted Publishingで公開し、クリーンなNodeプロジェクトから導入・importする。
 
-- [x] Initial General registration completed.
-- [ ] Decide the coordinated next version and update `julia/Project.toml` with the same release version.
-- [ ] Run `make publish-julia-dry` and `julia --project=julia -e 'using Pkg; Pkg.test()'`.
-- [ ] Comment `@JuliaRegistrator register subdir=julia` on the approved release commit.
-- [ ] Merge/observe the General registry PR and verify `Pkg.add("MaskPII")` in a clean depot.
+### Bun — npm（`BLOCKED`）
 
-## Unpublished registry/catalog runbooks
+Bunもnpmパッケージを使用するため、JavaScript版とBun版は同じnpm名を所有できません。
 
-### D — DUB (`BLOCKED`)
+- [ ] 別のスコープ付き名称（推奨 `@finitefield-org/mask-pii-bun`）を承認する。
+- [ ] `bun/package.json`、README、build出力、import例を更新する。
+- [ ] `bun test`、`bun run build`、`bun publish --dry-run` を実行する。
+- [ ] `dist/`、型定義、README、licenseを確認して公開し、Bunのクリーンプロジェクトから導入する。
 
-Target: https://code.dlang.org/packages/mask-pii
+### Groovy — Maven Central（`BLOCKED`）
 
-Official reference: [Publishing packages](https://dub.pm/dub-guide/publishing/).
+公式資料: [Maven Central Publisher Portal](https://central.sonatype.org/publish/publish-portal-guide/)
 
-Blocker: DUB registration is performed on the DUB website and the registry monitors repository tags; it is not performed by a `dub publish` CLI command. DUB's documented workflow expects the package recipe and contents at the registered repository root, while this repository stores `dub.json` and the D source under `d/`. The current Makefile's `publish-d` and `publish-d-dry` targets therefore must not be used.
+`groovy/build.gradle` にはpublication定義がありますが、Central公開先、認証、名前空間確認、署名設定がありません。
 
-- [ ] Confirm DUB account ownership and availability of the `mask-pii` package name.
-- [ ] Ask DUB maintainers or validate in a non-publishing workflow whether a registry entry can target a repository subdirectory.
-- [ ] If subdirectories are unsupported, obtain approval for a D-only split/mirror repository or an equivalent layout change; preserve the canonical source and release provenance.
-- [ ] Run `make test-d`, `cd d && dub build`, and inspect `d/dub.json`, source inclusion, README, and `d/LICENSE.md`.
-- [ ] Register the exact approved repository URL through the DUB website.
-- [ ] Create an immutable SemVer tag in that registered repository only after the layout and artifact have passed review; allow DUB's tag monitor to index it.
-- [ ] Verify `dub add mask-pii` and `dub test` in a clean D project.
-- [ ] Mark `DONE` only after the DUB page shows repository, license, the applicable finitefield.org URL, and the intended version.
+- [ ] Maven Centralで `org.finitefield` 名前空間の所有権を確認する。
+- [ ] 座標 `org.finitefield:mask-pii:X.Y.Z` を確定する。
+- [ ] secretをコミットせず、Central公開と署名を設定する。
+- [ ] POMへ名称、説明、URL、license、developers、SCMを含める。
+- [ ] テスト、sources／Groovydoc jar生成、Maven Localへの公開と検査を行う。
+- [ ] Central Portalで検証・公開後、クリーンなGradleプロジェクトから解決する。
 
-### Deno — JSR (`BLOCKED`)
+### Haskell — Hackage（`READY`）
 
-Official reference: [Publishing packages to JSR](https://jsr.io/docs/publishing-packages).
+公式入口: https://hackage.haskell.org/upload
 
-Blocker: JSR requires a scoped name, while `deno/deno.json` currently declares unscoped `mask-pii`.
+- [ ] Hackageアカウント、名前の空き、maintainershipを確認する。
+- [ ] `make test-haskell` と `make publish-haskell-dry` を実行する。
+- [ ] source distributionのREADME、license、changelogを確認する。
+- [ ] 利用可能ならpackage candidateを先にupload・導入確認する。
+- [ ] 人間の最終確認後にuploadし、クリーン環境で `cabal update && cabal install mask-pii-X.Y.Z` を確認する。
 
-- [ ] Reserve an organization-owned JSR scope; recommended first choice is `@finitefield`.
-- [ ] Set the package name to the approved scoped identifier, recommended `@finitefield/mask-pii`.
-- [ ] Add an explicit publish include list containing `mod.ts`, source, README, and license.
-- [ ] Update Deno installation/import documentation to the final JSR identifier.
-- [ ] Run `deno test`, `deno check mod.ts`, and `deno publish --dry-run` from `deno/`.
-- [ ] Link the JSR package to `finitefield-org/mask-pii` and prefer GitHub OIDC for publication.
-- [ ] Publish, then verify `deno add jsr:@finitefield/mask-pii@X.Y.Z` in a clean project.
+### Hare — 公式Project Library（`READY`）
 
-Do not follow the obsolete Makefile text that refers to new `deno.land/x` publication; new publication work targets JSR.
+公式資料: [Hare Project Library](https://harelang.org/project-library/)
 
-### JavaScript — npm (`BLOCKED`)
+Hareには公式パッケージマネージャーがありません。公式一覧への掲載とGit／`HAREPATH` 手順の動作を完了条件とします。
 
-Official reference: [Publishing scoped public packages](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/).
+- [ ] Hareテストと、クリーンcloneからの `HAREPATH` 構成を確認する。
+- [ ] Project Libraryの適切なカテゴリへmask-piiを追加する小さなpatchを作る。
+- [ ] 公式案内どおりhare-devメーリングリストへ送る。
+- [ ] 採用後のURLと確認日を記録する。
 
-Blocker: the unscoped npm name `mask-pii` is owned by another publisher.
+Makefileの `harepm` を前提にした `publish-hare` は使用しません。
 
-- [ ] Confirm an npm organization scope controlled by Finite Field; recommended package name is `@finitefield-org/mask-pii`.
-- [ ] Update `javascript/package.json` name, repository directory metadata, README install/import examples, and package tests.
-- [ ] Add `publishConfig.access = "public"` and an explicit `files` list if missing.
-- [ ] Run `npm test` and `npm publish --dry-run` from `javascript/`; inspect the tarball file list.
-- [ ] Publish with `npm publish --access public` using MFA/trusted publishing.
-- [ ] Verify install and import from a clean Node project.
+### Lua — LuaRocks（`BLOCKED`）
 
-### Bun — npm (`BLOCKED`)
+資料: [Uploading rocks](https://github.com/luarocks/luarocks/wiki/Uploading-rocks)
 
-Bun consumes and publishes npm packages; the JavaScript and Bun implementations cannot both own the same npm name.
+`lua/mask-pii-0.2.0-1.rockspec` はリポジトリ直下を取得しますが、module pathは `lua/` 相対です。取得アーカイブからのbuildを実証する必要があります。
 
-- [ ] Approve a distinct scoped name, recommended `@finitefield-org/mask-pii-bun`.
-- [ ] Update `bun/package.json`, README, build output, and import examples.
-- [ ] Run `bun test`, `bun run build`, and `bun publish --dry-run`.
-- [ ] Inspect that `dist/`, type declarations, README, and license are included.
-- [ ] Publish and verify installation with Bun in a clean project.
+- [ ] rockspecのsource／source.dirとモノレポ構成を決定的に解決する。
+- [ ] 不変タグ／アーカイブに `lua/LICENSE.md` とREADMEが含まれることを確認する。
+- [ ] `make test-lua`、`make publish-lua-dry`、クリーンなLuaRocks treeでのlocal installを行う。
+- [ ] 成功後にのみuploadし、公開サーバーから `luarocks install mask-pii 0.2.0-1` を確認する。
 
-### Groovy — Maven Central (`BLOCKED`)
+### Nim — Nim package list／Nimble（`BLOCKED`）
 
-Official reference: [Maven Central Publisher Portal guide](https://central.sonatype.org/publish/publish-portal-guide/).
+資料: [パッケージ申請](https://github.com/nim-lang/packages#submitting-a-package)
 
-Blocker: `groovy/build.gradle` defines a Maven publication but no Central remote repository, credentials, namespace verification, or signing configuration.
+- [ ] package-listが `nim/` サブディレクトリを扱えるか確認する。非対応ならsplit／mirrorを検討する。
+- [ ] `nim/mask_pii.nimble` の名前、tag、license、repository metadataを確認する。
+- [ ] `make test-nim` と `make publish-nim-dry` を実行する。
+- [ ] 現行資料に従ってpackage-list PRまたは `nimble publish` を行う。
+- [ ] クリーンなNimble環境で `nimble install mask_pii` を確認する。
 
-- [ ] Verify ownership of the `org.finitefield` namespace in Maven Central.
-- [ ] Confirm the final coordinate `org.finitefield:mask-pii:X.Y.Z`.
-- [ ] Add Central publishing and signing configuration without committing secrets.
-- [ ] Ensure POM contains name, description, URL, license, developers, and SCM metadata.
-- [ ] Run tests, generate sources/Groovydoc jars, and publish to Maven Local for inspection.
-- [ ] Upload and validate the deployment in the Central Portal, then explicitly publish it.
-- [ ] Verify dependency resolution from Maven Central in a clean Gradle project.
+### OCaml — opam repository（`BLOCKED`）
 
-### Haskell — Hackage (`READY`)
+公式資料: [Packaging with opam](https://opam.ocaml.org/doc/Packaging.html)
 
-Official entry point: https://hackage.haskell.org/upload
+- [ ] `ocaml/opam-repository` のforkへ `packages/mask-pii/mask-pii.X.Y.Z/opam` を作る。
+- [ ] 不変のrelease archive URLとSHA256／SHA512を設定する。
+- [ ] `ocaml/mask-pii.opam` とbuild／test依存を一致させる。
+- [ ] パッケージアーカイブに対するlint／buildを行う。
+- [ ] opam-repository PRのCI／レビューを解決し、merge後に `opam install mask-pii.X.Y.Z` を確認する。
 
-- [ ] Confirm Hackage account and package-name availability/maintainership.
-- [ ] Run `make test-haskell` and `make publish-haskell-dry`.
-- [ ] Inspect the generated source distribution and confirm README/license/changelog inclusion.
-- [ ] Upload a package candidate first when available; install-test the candidate.
-- [ ] Run the final Hackage upload with human confirmation.
-- [ ] Verify `cabal update && cabal install mask-pii-X.Y.Z` in a clean environment.
+### Perl — CPAN／PAUSE（`READY`）
 
-### Hare — official Project Library (`READY`)
+公式資料: [PAUSEとCPAN upload](https://www.cpan.org/modules/04pause.html)
 
-Official reference: [Hare Project Library](https://harelang.org/project-library/).
+- [ ] PAUSEアカウントと `Mask::PII` のfirst-come権限を確認する。
+- [ ] `make test-perl` と `make publish-perl-dry` を実行する。
+- [ ] `Mask-PII-X.Y.Z.tar.gz`、META、README、license、module versionを確認する。
+- [ ] 承認済みアカウントでuploadし、index後にMetaCPANと `cpanm Mask::PII` を確認する。
 
-Hare has no official package manager. Completion means inclusion in the official project directory plus working Git/HAREPATH instructions.
+### PowerShell — PowerShell Gallery（`READY`）
 
-- [ ] Run Hare tests and validate the documented `HAREPATH` layout from a clean clone.
-- [ ] Prepare a small patch adding mask-pii to the appropriate Project Library category.
-- [ ] Send the patch to the hare-dev mailing list as requested by the official directory.
-- [ ] Record the accepted directory URL and verification date.
+公式資料: [Publishing to PowerShell Gallery](https://learn.microsoft.com/powershell/gallery/how-to/publishing-packages/publishing-a-package)
 
-Do not run the current `publish-hare` Makefile target as if `harepm` were an official registry; its text must be corrected in implementation work.
+- [ ] Galleryアカウント、APIキー、`MaskPII` 名の空きを確認する。
+- [ ] `make test-powershell` と `make publish-powershell-dry` を実行する。
+- [ ] `Test-ModuleManifest` で版、export、tag、license URI、project URI、repositoryを確認する。
+- [ ] キーを履歴へ露出せず `Publish-Module -Path ./powershell/MaskPII -NuGetApiKey $PS_GALLERY_KEY` を実行する。
+- [ ] `Find-Module MaskPII` とクリーンscopeへのinstall／importを確認する。
 
-### Lua — LuaRocks (`BLOCKED`)
+### R — CRAN（`BLOCKED`）
 
-Reference: https://github.com/luarocks/luarocks/wiki/Uploading-rocks
+公式資料: [CRAN policy](https://cran.r-project.org/web/packages/policies.html)、[submission](https://cran.r-project.org/submit.html)
 
-Blocker: `lua/mask-pii-0.2.0-1.rockspec` points at the repository root but its module paths are relative to `lua/`; a downloaded source archive must be proven to build before upload.
+- [ ] `R CMD build r` 後のtarballに対して `R CMD check --as-cran` を実行する。
+- [ ] error／warning／noteを解消し、許容されるnoteだけ理由を記録する。
+- [ ] `MIT + file LICENSE` とmaintainer連絡先がCRAN要件を満たすことを確認する。
+- [ ] 現行R、R-devel、可能なplatform builderで確認する。
+- [ ] CRAN formから提出し、メール確認とreviewer指摘へ対応する。
+- [ ] 採用後 `install.packages("maskpii")` を確認する。
 
-- [ ] Make the rockspec source/archive and source directory resolve the monorepo layout deterministically.
-- [ ] Ensure the immutable source tag/archive contains `lua/LICENSE.md` and README.
-- [ ] Run `make test-lua` and `make publish-lua-dry`.
-- [ ] Build/install the rock locally from the exact rockspec in a clean LuaRocks tree.
-- [ ] Authenticate and run `make publish-lua` only after the local install passes.
-- [ ] Verify `luarocks install mask-pii 0.2.0-1` from the public server.
+### Racket — Package Catalog（`BLOCKED`）
 
-### Nim — Nim package list/Nimble (`BLOCKED`)
+公式カタログ: https://pkgs.racket-lang.org/
 
-Reference: https://github.com/nim-lang/packages#submitting-a-package
+`racket/` にパッケージ内licenseがなく、カタログsourceもモノレポのサブディレクトリを解決する必要があります。
 
-Blocker: the Nimble manifest is in `nim/`; the public package-list entry must explicitly support that monorepo subdirectory or the package must be split/mirrored.
+- [ ] 次回共通リリースでパッケージ内licenseを追加する。
+- [ ] 提案するsource URLから `raco pkg install` を直接検証する。
+- [ ] `make test-racket` とmetadata検証を行う。
+- [ ] 動作するsource URLで `mask-pii` を申請する。
+- [ ] catalog metadata、build、文書、license、クリーンな `raco pkg install mask-pii` を確認する。
 
-- [ ] Confirm the package-list schema and approved subdirectory mechanism.
-- [ ] Validate `nim/mask_pii.nimble`, package name, tags, license, and repository metadata.
-- [ ] Run `make test-nim` and `make publish-nim-dry`.
-- [ ] Submit the package-list PR or `nimble publish` workflow dictated by current Nimble documentation.
-- [ ] Verify `nimble install mask_pii` in a clean Nimble directory.
+### Swift — Swift Package Index（`READY`）
 
-### OCaml — opam repository (`BLOCKED`)
+資料: [SwiftPM package definition](https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html)、[Swift Package Indexへの追加](https://swiftpackageindex.com/add-a-package)
 
-Official reference: [Packaging with opam](https://opam.ocaml.org/doc/Packaging.html).
+SwiftPM自体は分散型のため、公開カタログとしてSwift Package Indexを対象にします。
 
-- [ ] Create the registry file `packages/mask-pii/mask-pii.X.Y.Z/opam` in a fork of `ocaml/opam-repository`.
-- [ ] Use an immutable release archive URL and record its SHA256/SHA512 checksum.
-- [ ] Ensure build/test dependencies and constraints match `ocaml/mask-pii.opam`.
-- [ ] Run local opam lint/build tests against the packaged archive.
-- [ ] Submit the opam-repository PR and resolve CI/reviewer findings.
-- [ ] Verify `opam install mask-pii.X.Y.Z` from the merged repository.
+- [ ] リポジトリ直下で `swift test` を実行し、platform／toolchainを確認する。
+- [ ] クリーンなconsumerから `Package.swift`、root license、README、`v0.2.0` tagを確認する。
+- [ ] `https://github.com/finitefield-org/mask-pii` をSwift Package Indexへ申請する。
+- [ ] build matrixの問題を解消し、products、platforms、license、文書を確認する。
 
-### Perl — CPAN/PAUSE (`READY`)
+### V — VPM（`BLOCKED`）
 
-Official reference: [PAUSE and CPAN upload](https://www.cpan.org/modules/04pause.html).
+公式カタログ: https://vpm.vlang.io/
 
-- [ ] Create/confirm the PAUSE account and first-come permission for `Mask::PII`.
-- [ ] Run `make test-perl` and `make publish-perl-dry`.
-- [ ] Inspect `Mask-PII-X.Y.Z.tar.gz`, META files, README, license, and module version.
-- [ ] Upload through PAUSE/CPAN with the authorized account.
-- [ ] Wait for indexing, then verify the MetaCPAN page and `cpanm Mask::PII` in a clean Perl environment.
+VPMは通常、申請リポジトリ直下のmetadataを前提としますが、現在の `v.mod` は `v/` にあります。
 
-### PowerShell — PowerShell Gallery (`READY`)
+- [ ] VPMのサブディレクトリ対応を現行資料／管理者へ確認する。
+- [ ] 非対応なら、canonical sourceの所有権を維持したsplit／mirrorを承認する。
+- [ ] 申請する構成でVテスト、`v.mod`、license、README、versionを確認する。
+- [ ] VPMへ申請し、クリーン環境で `v install <owner>.<name>` を確認する。
 
-Official reference: [Publishing to PowerShell Gallery](https://learn.microsoft.com/powershell/gallery/how-to/publishing-packages/publishing-a-package).
+### Common Lisp — Quicklisp（`BLOCKED`）
 
-- [ ] Confirm the PowerShell Gallery account, API key, and `MaskPII` name availability.
-- [ ] Run `make test-powershell` and `make publish-powershell-dry`.
-- [ ] Confirm `Test-ModuleManifest` reports version, exported commands, tags, license URI, project URI, and repository metadata.
-- [ ] Run `Publish-Module -Path ./powershell/MaskPII -NuGetApiKey $PS_GALLERY_KEY` without exposing the key in shell history.
-- [ ] Verify `Find-Module MaskPII` and install/import it in a clean PowerShell scope.
+資料: [Quicklisp inclusion FAQ](https://www.quicklisp.org/beta/faq.html)
 
-### R — CRAN (`BLOCKED`)
+- [ ] クリーンなASDF環境で `common-lisp/mask-pii.asd` をload・testする。
+- [ ] release archive内の `common-lisp/` からQuicklispがASDF systemを検出できるか確認する。
+- [ ] 不変sourceにREADMEとlicenseが含まれることを確認する。
+- [ ] 現行のQuicklisp申請方法で提出する。
+- [ ] dist更新後に `(ql:quickload :mask-pii)` を確認する。
 
-Official references: [CRAN repository policy](https://cran.r-project.org/web/packages/policies.html), [submission form](https://cran.r-project.org/submit.html).
+### Crystal — Shards／検索インデックス（`BLOCKED`）
 
-- [ ] Run `R CMD build r` and `R CMD check --as-cran` on the resulting tarball, not only the source directory.
-- [ ] Resolve all errors, warnings, and notes or document why a CRAN-accepted note is unavoidable.
-- [ ] Confirm `MIT + file LICENSE` uses the CRAN-required license file format and that package metadata includes valid maintainer contact details.
-- [ ] Check current R release, R-devel, and relevant platform builders where practical.
-- [ ] Submit the tarball through the CRAN form and complete maintainer email confirmation.
-- [ ] Address CRAN reviewer feedback and verify `install.packages("maskpii")` after acceptance.
+公式資料: [Writing and releasing Shards](https://crystal-lang.org/reference/latest/guides/writing_shards.html)
 
-### Racket — Package Catalog (`BLOCKED`)
+Shardsはソースリポジトリを解決します。単一の公式レジストリはなく、検索インデックスはコミュニティサービスです。
 
-Official catalog: https://pkgs.racket-lang.org/
+- [ ] canonical repositoryの `crystal/` をconsumerから参照できるか確認し、非対応ならsplit／mirrorを承認する。
+- [ ] `make test-crystal` と `make publish-crystal-dry` を実行する。
+- [ ] `shard.yml`、README、license、version tag、クリーンな `shards install` を確認する。
+- [ ] 発見性のため、確立したshard indexを1つ選定して申請する。
+- [ ] index URLを記録し、Git tagをsource of truthとして文書化する。
 
-Blockers: `racket/` has no package-local license file, and the catalog source must resolve the monorepo subdirectory.
+## レジストリ／カタログ対象がない言語
 
-- [ ] Add a package-local redistributable license in the next coordinated release.
-- [ ] Validate `raco pkg install` directly from the proposed catalog source URL.
-- [ ] Run `make test-racket` and package metadata validation.
-- [ ] Submit `mask-pii` to the catalog with the working source URL.
-- [ ] Verify catalog metadata, build status, documentation, license, and clean `raco pkg install mask-pii`.
+次の言語はGit／ファイル導入とrelease tagが確認できれば完了です。未公開レジストリ件数には含めません。
 
-### Swift — Swift Package Index (`READY`)
-
-References: [SwiftPM package definition](https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html), [Add a package to Swift Package Index](https://swiftpackageindex.com/add-a-package).
-
-SwiftPM distribution itself is decentralized; the public catalog target is Swift Package Index.
-
-- [ ] Run `swift test` from the repository root and confirm supported platforms/toolchain.
-- [ ] Confirm `Package.swift`, root license, README, and `v0.2.0` tag resolve correctly from a clean consumer package.
-- [ ] Submit `https://github.com/finitefield-org/mask-pii` to Swift Package Index.
-- [ ] Resolve build-matrix failures and confirm the package page shows products, platforms, license, and documentation.
-
-### V — VPM (`BLOCKED`)
-
-Official catalog: https://vpm.vlang.io/
-
-Blocker: VPM normally expects package metadata at the submitted repository root; `v/v.mod` is in a monorepo subdirectory.
-
-- [ ] Confirm current VPM support for a subdirectory package with the VPM maintainers/docs.
-- [ ] If unsupported, create an approved split/mirror release repository without changing canonical source ownership.
-- [ ] Run V tests and validate `v.mod`, license, README, and version in the exact submitted layout.
-- [ ] Submit the package through VPM.
-- [ ] Verify `v install <approved-owner>.<approved-name>` in a clean V module directory.
-
-### Common Lisp — Quicklisp (`BLOCKED`)
-
-Reference: [Quicklisp project inclusion FAQ](https://www.quicklisp.org/beta/faq.html).
-
-- [ ] Load and test `common-lisp/mask-pii.asd` with a clean ASDF environment.
-- [ ] Confirm Quicklisp can discover the ASDF system inside the `common-lisp/` subdirectory of the release archive.
-- [ ] Ensure the release source is immutable and contains README/license.
-- [ ] Submit the project using the current Quicklisp project-submission process.
-- [ ] After the next Quicklisp dist update, verify `(ql:quickload :mask-pii)`.
-
-### Crystal — Shards and shard discovery (`BLOCKED`)
-
-Official reference: [Writing and releasing Shards](https://crystal-lang.org/reference/latest/guides/writing_shards.html).
-
-Crystal's official Shards tool resolves source repositories; discovery indexes are community services rather than a single official registry.
-
-- [ ] Confirm consumers can reference the `crystal/` subdirectory from the canonical repository; if not, create an approved split/mirror repository.
-- [ ] Run `make test-crystal` and `make publish-crystal-dry`.
-- [ ] Validate `shard.yml`, README, license, version tag, and a clean consumer `shards install`.
-- [ ] Submit the working repository to one established shard index for discoverability.
-- [ ] Record the index URL, while continuing to describe Git tags as the source of truth.
-
-## Languages without a registry/catalog target
-
-These rows are complete when their Git/file installation instructions and release tag have been verified. They do not count as unpublished registry work.
-
-| Language | Standard distribution | Verification |
+| 言語 | 標準的な配布方法 | 確認方法 |
 | --- | --- | --- |
-| AWK | Copy/source `awk/src/mask_pii.awk`; optional `awk-pkg` | Run AWK tests and follow README from a clean checkout. |
-| Bash | Git/bpkg | Install using the documented GitHub path and run Bash tests. |
-| Carbon | Source/toolchain experiment | Re-audit packaging when Carbon stabilizes it. |
-| Fish | Fisher from Git | Install from Git and run `fish/tests/run.fish`. |
-| Nushell | Git/file module | Import the module from a clean checkout and run tests. |
-| Odin | Collection path | Build/test using the documented `-collection` mapping. |
-| Pony | Git/Corral source dependency | Validate a clean source-control dependency and tests. |
-| Red | Source file | Load `red/mask-pii.red` and run Red tests. |
-| Tcl | `pkgIndex.tcl` plus Git/file install | Add `tcl/` to `auto_path`, require the package, and run tests. |
-| Zig | URL/hash package dependency | Validate `zig build test` and document the immutable source URL/hash. |
-| Zsh | Git plugin managers | Source the plugin from a clean clone and run Zsh tests. |
+| AWK | `awk/src/mask_pii.awk` をcopy／source | テストとREADME手順をクリーンcheckoutで実行する。 |
+| Bash | Git／bpkg | 文書化したGitHub pathから導入してテストする。 |
+| Carbon | source／実験的toolchain | パッケージング安定後に再調査する。 |
+| Fish | GitからFisherで導入 | Gitから導入し `fish/tests/run.fish` を実行する。 |
+| Nushell | Git／module file | クリーンcheckoutからmoduleをimportしてtestする。 |
+| Odin | collection path | 文書化した `-collection` mappingでbuild／testする。 |
+| Pony | Git／Corral dependency | クリーンなsource-control dependencyとtestを確認する。 |
+| Red | source file | `red/mask-pii.red` をloadしてtestする。 |
+| Tcl | `pkgIndex.tcl`＋Git | `tcl/` を `auto_path` へ追加しrequire／testする。 |
+| Zig | URL/hash dependency | `zig build test` と不変source URL/hashを確認する。 |
+| Zsh | Git plugin manager | クリーンcloneからpluginをsourceしてtestする。 |
 
-## Acceptance criteria
+## 完了条件
 
-A registry/catalog target is `DONE` only when all applicable criteria are satisfied:
+登録対象を `DONE` にするには、適用可能な項目をすべて満たす必要があります。
 
-1. The public page exists under an account or organization controlled by Finite Field.
-2. The intended version is immutable and downloadable from the public service.
-3. A clean consumer can install and execute a minimal masking example without local paths, unpublished Git commits, or credentialed endpoints.
-4. The public page shows a redistributable license, source repository, and the applicable `https://finitefield.org/oss/mask-pii/<language>/` page (or canonical mask-pii project page) where the service exposes those metadata fields; otherwise the published README or API documentation contains the canonical website URL.
-5. Published documentation explains that masking is opt-in and includes email and phone examples consistent with tests.
-6. No secret, cache, credential, or private artifact is included. Registry-built monorepo source archives may contain unrelated language directories only when the service offers no package-level file selection and the consumer's import/autoload surface remains limited to the intended implementation.
-7. This document contains the final URL, version, verification date, owner, and any remaining follow-up.
+1. Finite Field管理のアカウント／組織配下に公開ページがある。
+2. 予定版が公開サービスから不変の形で取得できる。
+3. ローカルpath、未公開commit、認証付きendpointを使わず、クリーンなconsumerで導入して最小のmasking例を実行できる。
+4. 対応フィールドがある場合、公開ページに再配布可能なlicense、source repository、該当言語ページまたは公式プロジェクトページが表示される。ない場合は公開README／API文書に公式URLがある。
+5. 公開文書にmaskingがopt-inであることと、testに合致するemail／phone例がある。
+6. secret、cache、credential、private artifactがない。レジストリ側がファイル選択を提供しないモノレポarchiveでは、consumerのimport／autoload範囲が対象実装だけに限定されることを確認する。
+7. この文書に最終URL、版、確認日、所有者、残作業が記録されている。
 
-Catalog-only targets such as Hare and Swift Package Index replace criterion 2 with a working immutable Git tag and replace criterion 3 with the ecosystem's documented Git installation flow.
+HareやSwift Package Indexなどのカタログのみの対象は、項目2を「動作する不変Git tag」、項目3を「エコシステム標準のGit導入手順」に読み替えます。
 
-## Failure handling, rollback, and immutability
+## 失敗時の対応と不変性
 
-- Public package versions generally cannot be overwritten. Fix defects with a new coordinated patch version.
-- If a registry supports yank/deprecate/retract, use it only for security, legal, malware, or unusable-artifact incidents; record the reason and replacement version.
-- Never delete and recreate a package merely to repair metadata unless the registry explicitly guarantees that no published version or namespace ownership is lost.
-- If a name is owned by another publisher, stop and choose an organization-scoped name; do not contact users, transfer money, or file a dispute without explicit authorization.
-- If an upload succeeds but indexing times out, verify the registry page/API before retrying. A retry may collide with an already immutable version.
-- If installation verification fails after publication, mark the target `PARTIAL`, stop the rollout, open a documented fix for the next version, and continue only after assessing whether other languages share the defect.
+- 公開版は通常上書きできないため、修正は新しい共通patch versionで行う。
+- yank／deprecate／retractはsecurity、法的問題、malware、利用不能artifactの場合だけ使用し、理由と代替版を記録する。
+- レジストリが名前・所有権・公開版を保持すると明示しない限り、metadata修正目的でpackageを削除・再作成しない。
+- 名前が別所有者に使われている場合は組織scope名を選ぶ。明示的な許可なしに連絡、金銭支払い、異議申立てを行わない。
+- upload後にindexがtimeoutした場合、再試行前に公開page／APIを確認する。
+- 公開後の導入確認に失敗したら `PARTIAL` とし、次版の修正を記録して、他言語への影響を評価するまで展開を止める。
 
-## Coordinated `0.2.1` backlog
+## 共通 `0.2.1` バックログ
 
-This is the collection point for fixes discovered during initial registration. Do not create the release until every checked item has an implementation and validation result.
+- [ ] 全公開artifactへパッケージ内licenseを含める。既知の対象はGoとRacket。
+- [ ] 対応するmetadata／package commentへ言語別finitefield.org URLを追加する。
+- [ ] Juliaを共通バージョンへ合わせる。
+- [ ] JavaScriptとBunの最終npm名を決める。
+- [ ] DenoのJSR scope／nameを確保・反映する。
+- [ ] D、Lua、Nim、V、Crystal、Common Lisp、Racketのモノレポ問題と、新たに判明した問題を解決する。
+- [ ] GroovyのMaven Central公開／署名を設定する。
+- [ ] Makefileの古いD `dub publish`、Deno `deno.land/x`、Hare `harepm` を別実装タスクで修正する。
+- [ ] release commitから全言語testとregistry dry-runを行う。
+- [ ] `CHANGELOG.md`、`VERSION`、各manifest、README導入例、Webサイト、進捗表を更新する。
+- [ ] review／承認後にのみ不変のrelease tagを作る。
 
-- [ ] Include package-local licenses in every published artifact; Go and Racket are known follow-ups.
-- [ ] Add canonical per-language finitefield.org URLs to package metadata and API/package comments where supported.
-- [ ] Align Julia with the coordinated version.
-- [ ] Resolve final npm names for JavaScript and Bun.
-- [ ] Reserve and apply the final JSR scope/name for Deno.
-- [ ] Fix every confirmed monorepo packaging issue: D, Lua, Nim, V, Crystal, Common Lisp, Racket, and any new findings.
-- [ ] Configure Maven Central publication/signing for Groovy.
-- [ ] Correct stale Makefile guidance, including D `dub publish`, Deno `deno.land/x`, and Hare `harepm`, in a separate implementation task.
-- [ ] Run language tests and registry dry-runs from the release commit.
-- [ ] Update `CHANGELOG.md`, `VERSION`, language manifests, README installation commands, website package pages, and this tracker.
-- [ ] Create immutable release tags only after review and approval.
+## 作業中の進捗記録テンプレート
 
-## Progress update template
-
-Append this block to the relevant language runbook while work is active, then collapse it into the master row after completion.
+対象言語のrunbookへ一時的に追記し、完了時にマスター進捗表へ集約します。
 
 ```text
-Operator:
-Started (JST):
-Target registry/catalog:
-Package identifier:
-Intended version:
-Dry-run command and result:
-Publish/submit action:
-Public URL:
-Clean install command and result:
-License/repository/website metadata result:
-Completed (JST):
-Remaining follow-up:
+担当者:
+開始日時（JST）:
+登録先:
+パッケージ識別子:
+予定バージョン:
+dry-runコマンドと結果:
+公開／申請操作:
+公開URL:
+クリーン導入コマンドと結果:
+license／repository／website metadataの確認結果:
+完了日時（JST）:
+残作業:
 ```
 
-## Reference files
+## 参照ファイル
 
-- Repository version: `VERSION`
-- Common tests/builds/publication helpers: `Makefile`
-- Release history: `CHANGELOG.md`
-- Language implementation inventory: `README.md`
-- Language manifests: each language directory and the repository-root `Package.swift`/`composer.json`
+- リポジトリ共通バージョン: `VERSION`
+- 共通test／build／公開補助: `Makefile`
+- リリース履歴: `CHANGELOG.md`
+- 言語実装一覧: `README.md`
+- 各言語のmanifest: 各言語ディレクトリ、およびリポジトリ直下の `Package.swift`／`composer.json`
