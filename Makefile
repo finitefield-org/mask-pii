@@ -1,4 +1,4 @@
-.PHONY: test test-awk test-rust test-ruby test-go test-python test-php test-swift test-julia test-elixir test-haskell test-hare test-tcl test-r test-d test-lua test-ocaml test-nim test-javascript test-bun test-common-lisp test-racket test-red test-perl test-groovy test-zsh test-pony build build-awk build-julia build-elixir build-haskell build-hare build-tcl build-r build-d build-lua build-ocaml build-nim build-javascript build-bun build-common-lisp build-racket build-red build-perl build-nushell build-groovy build-zsh build-pony php-deps python-venv publish-awk publish-awk-dry publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-php publish-php-dry publish-swift publish-swift-dry publish-julia publish-julia-dry publish-elixir publish-elixir-dry publish-haskell publish-haskell-dry publish-hare publish-hare-dry publish-tcl publish-tcl-dry publish-d publish-d-dry publish-r publish-r-dry publish-lua publish-lua-dry publish-nim publish-nim-dry publish-javascript publish-javascript-dry publish-bun publish-bun-dry publish-common-lisp publish-common-lisp-dry publish-racket publish-racket-dry publish-red publish-red-dry publish-perl publish-perl-dry publish-nushell publish-nushell-dry publish-groovy publish-zsh publish-zsh-dry publish-pony publish-pony-dry publish-all publish-all-dry test-crystal build-crystal publish-crystal publish-crystal-dry test-zig build-zig publish-zig publish-zig-dry test-nushell test-deno build-deno publish-deno publish-deno-dry test-fish build-fish publish-fish publish-fish-dry test-v build-v publish-v publish-v-dry test-powershell build-powershell publish-powershell publish-powershell-dry test-carbon build-carbon publish-carbon publish-carbon-dry test-odin build-odin publish-odin publish-odin-dry test-bash build-bash publish-bash publish-bash-dry
+.PHONY: test test-awk test-rust test-ruby test-go test-python test-php test-swift test-julia test-elixir test-haskell test-hare test-tcl test-r test-d test-lua test-ocaml test-nim test-javascript test-bun test-common-lisp test-racket test-red test-perl test-groovy test-zsh test-pony build build-awk build-julia build-elixir build-haskell build-hare build-tcl build-r build-d build-lua build-ocaml build-nim build-javascript build-bun build-common-lisp build-racket build-red build-perl build-nushell build-groovy build-zsh build-pony php-deps python-venv verify-go-release publish-awk publish-awk-dry publish-go publish-go-dry publish-ruby publish-ruby-dry publish-rust publish-rust-dry publish-python publish-python-dry publish-php publish-php-dry publish-swift publish-swift-dry publish-julia publish-julia-dry publish-elixir publish-elixir-dry publish-haskell publish-haskell-dry publish-hare publish-hare-dry publish-tcl publish-tcl-dry publish-d publish-d-dry publish-r publish-r-dry publish-lua publish-lua-dry publish-nim publish-nim-dry publish-javascript publish-javascript-dry publish-bun publish-bun-dry publish-common-lisp publish-common-lisp-dry publish-racket publish-racket-dry publish-red publish-red-dry publish-perl publish-perl-dry publish-nushell publish-nushell-dry publish-groovy publish-zsh publish-zsh-dry publish-pony publish-pony-dry publish-all publish-all-dry test-crystal build-crystal publish-crystal publish-crystal-dry test-zig build-zig publish-zig publish-zig-dry test-nushell test-deno build-deno publish-deno publish-deno-dry test-fish build-fish publish-fish publish-fish-dry test-v build-v publish-v publish-v-dry test-powershell build-powershell publish-powershell publish-powershell-dry test-carbon build-carbon publish-carbon publish-carbon-dry test-odin build-odin publish-odin publish-odin-dry test-bash build-bash publish-bash publish-bash-dry
 
 GEM_VERSION := $(shell cd ruby && ruby -r./lib/mask_pii/version -e 'print MaskPII::VERSION')
 VERSION := $(shell cat VERSION)
@@ -366,7 +366,13 @@ publish-rust:
 publish-rust-dry:
 	cd rust && cargo publish --dry-run
 
-publish-go:
+verify-go-release:
+	@test -s go/LICENSE.md || { echo "go/LICENSE.md is missing or empty" >&2; exit 1; }
+	@git cat-file -e HEAD:go/LICENSE.md 2>/dev/null || { echo "go/LICENSE.md is not present in the commit that will be tagged" >&2; exit 1; }
+	@git diff --quiet HEAD -- go/LICENSE.md || { echo "go/LICENSE.md has uncommitted changes; commit it before tagging" >&2; exit 1; }
+	@echo "Verified go/LICENSE.md in the tag target commit."
+
+publish-go: verify-go-release
 	git tag -a go/v$(VERSION) -m "go v$(VERSION)"
 	git push origin go/v$(VERSION)
 
@@ -383,7 +389,7 @@ publish-bash:
 publish-bash-dry:
 	@echo "Bash publish dry run: no operation."
 
-publish-go-dry:
+publish-go-dry: verify-go-release
 	@echo "git tag -a go/v$(VERSION) -m \"go v$(VERSION)\""
 	@echo "git push origin go/v$(VERSION)"
 
