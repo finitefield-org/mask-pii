@@ -363,9 +363,15 @@ PS-02検証結果（2026-07-21）:
 - `make publish-powershell-dry` の `Test-ModuleManifest` が成功し、`MaskPII` 0.2.0とexport済みの `New-Masker` を認識した。
 - class propertyと変数名の衝突、不正なclass export、文字コード比較、Pesterのcase parameterizationを修正し、Pester失敗をMakeの終了コードへ反映した。
 
+PS-03検証結果（2026-07-21）:
+
+- `Test-ModuleManifest` でmodule名 `MaskPII`、版0.2.0、export済みfunction `New-Masker` を確認した。
+- tagsは `pii`、`masking`、`email`、`phone`、`privacy` である。
+- license URI、project URI、repository、issues URIをmanifestから取得し、すべてHTTP 200で応答することを確認した。
+
 - [x] **PS-01** Galleryアカウント、APIキー、`MaskPII` 名の空きを確認する。
 - [x] **PS-02** `make test-powershell` と `make publish-powershell-dry` を実行する。
-- [ ] **PS-03** `Test-ModuleManifest` で版、export、tag、license URI、project URI、repositoryを確認する。
+- [x] **PS-03** `Test-ModuleManifest` で版、export、tag、license URI、project URI、repositoryを確認する。
 - [ ] **PS-04** キーを履歴へ露出せず `Publish-Module -Path ./powershell/MaskPII -NuGetApiKey $PS_GALLERY_KEY` を実行する。
 - [ ] **PS-05** `Find-Module MaskPII` とクリーンscopeへのinstall／importを確認する。
 
