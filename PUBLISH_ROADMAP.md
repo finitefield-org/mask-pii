@@ -147,7 +147,7 @@ APIキー、token、パスワード、OTP、署名秘密鍵は、この文書、
 - [x] **SITE-01** 全36言語について、route、英語entity、現在のインストール欄、README、登録先、公開状態、不足キーを棚卸しし、結果を`PUBLISH.md`へ反映する。
 - [x] **SITE-02** `published`、`planned`、`git-only`、`source-only`、`unavailable`を表現できる共通コンテンツ構造を決定し、コマンドとURLを翻訳本文から分離する。
 - [x] **SITE-03** 全36言語の英語ページをコンテンツ契約どおりに完成させる。コマンドと最小例はmask-piiリポジトリのREADME、manifest、testを根拠にする。
-- [ ] **SITE-04** 36言語のroute数、必須キー、空インストール欄、placeholderだけの説明、リンク、版、識別子を検査する自動テストを追加し、成功させる。
+- [x] **SITE-04** 36言語のroute数、必須キー、空インストール欄、placeholderだけの説明、リンク、版、識別子を検査する自動テストを追加し、成功させる。
 - [ ] **SITE-05** 英語正本を全ロケールへ展開し、翻訳対象の残件数を全言語・全ロケールでゼロにする。
 - [ ] **SITE-06** finitefield.orgへデプロイし、代表ページと全routeのHTTP応答、表示、内部リンク、locale切替を確認する。未公開packageは`planned`表示のままとする。
 
