@@ -374,7 +374,13 @@ Makefileの `harepm` を前提にした `publish-hare` は使用しません。
 
 SwiftPM自体は分散型のため、公開カタログとしてSwift Package Indexを対象にします。
 
-- [ ] **SWIFT-01** リポジトリ直下で `swift test` を実行し、platform／toolchainを確認する。
+SWIFT-01検証結果（2026-07-21）:
+
+- Apple Swift 6.1.2（target: `arm64-apple-macosx16.0`）とmacOS 26.5.2で、リポジトリ直下の `swift package dump-package` が成功した。
+- manifestのtools versionは5.9で、最小platformはmacOS 12、iOS 13、tvOS 13、watchOS 6として解釈された。
+- リポジトリ直下の `swift test` で11テストが成功し、失敗は0件だった。
+
+- [x] **SWIFT-01** リポジトリ直下で `swift test` を実行し、platform／toolchainを確認する。
 - [ ] **SWIFT-02** クリーンなconsumerから `Package.swift`、root license、README、`v0.2.0` tagを確認する。
 - [ ] **SWIFT-03** `https://github.com/finitefield-org/mask-pii` をSwift Package Indexへ申請する。
 - [ ] **SWIFT-04** build matrixの問題を解消し、products、platforms、license、文書を確認する。
