@@ -336,9 +336,15 @@ PERL-02検証結果（2026-07-21）:
 - `make publish-perl-dry` で `Mask-PII-0.2.0.tar.gz` の生成とtar一覧検査が成功した。
 - `MANIFEST` 自身をdistributionへ収録し、dry-run生成物をGitの追跡対象から除外した。
 
+PERL-03検証結果（2026-07-21）:
+
+- distribution名は `Mask-PII-0.2.0.tar.gz` で、README、MIT license、`Makefile.PL`、module、test、MANIFEST、META JSON／YAMLを収録している。
+- METAはdistribution名 `Mask-PII`、stable release、MIT、版 `v0.2.0`、homepage、repository、bug trackerを保持している。METAの `v0.2.0` とmoduleの `0.2.0` はPerlのversion比較で同一である。
+- archive内のREADME、license、moduleはsourceと一致し、展開したdistribution単体の `make test` で11テストが成功した。
+
 - [ ] **PERL-01** PAUSEアカウントと `Mask::PII` のfirst-come権限を確認する。
 - [x] **PERL-02** `make test-perl` と `make publish-perl-dry` を実行する。
-- [ ] **PERL-03** `Mask-PII-X.Y.Z.tar.gz`、META、README、license、module versionを確認する。
+- [x] **PERL-03** `Mask-PII-X.Y.Z.tar.gz`、META、README、license、module versionを確認する。
 - [ ] **PERL-04** 承認済みアカウントでuploadし、index後にMetaCPANと `cpanm Mask::PII` を確認する。
 
 ### PowerShell — PowerShell Gallery（`READY`）
