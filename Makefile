@@ -559,11 +559,13 @@ publish-nushell-dry:
 
 publish-perl:
 	cd perl && perl Makefile.PL
+	$(RM) perl/Mask-PII-$(VERSION).tar.gz
 	cd perl && make dist
 	cd perl && cpan-upload Mask-PII-$(VERSION).tar.gz
 
 publish-perl-dry:
 	cd perl && perl Makefile.PL
+	$(RM) perl/Mask-PII-$(VERSION).tar.gz
 	cd perl && make dist
 	cd perl && tar -tf Mask-PII-$(VERSION).tar.gz > /dev/null
 

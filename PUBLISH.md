@@ -330,8 +330,14 @@ Makefileの `harepm` を前提にした `publish-hare` は使用しません。
 
 公式資料: [PAUSEとCPAN upload](https://www.cpan.org/modules/04pause.html)
 
+PERL-02検証結果（2026-07-21）:
+
+- `make test-perl` で11テストが成功し、失敗は0件だった。
+- `make publish-perl-dry` で `Mask-PII-0.2.0.tar.gz` の生成とtar一覧検査が成功した。
+- `MANIFEST` 自身をdistributionへ収録し、dry-run生成物をGitの追跡対象から除外した。
+
 - [ ] **PERL-01** PAUSEアカウントと `Mask::PII` のfirst-come権限を確認する。
-- [ ] **PERL-02** `make test-perl` と `make publish-perl-dry` を実行する。
+- [x] **PERL-02** `make test-perl` と `make publish-perl-dry` を実行する。
 - [ ] **PERL-03** `Mask-PII-X.Y.Z.tar.gz`、META、README、license、module versionを確認する。
 - [ ] **PERL-04** 承認済みアカウントでuploadし、index後にMetaCPANと `cpanm Mask::PII` を確認する。
 

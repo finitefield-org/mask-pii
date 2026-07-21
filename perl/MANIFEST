@@ -1,4 +1,5 @@
 LICENSE.md
+MANIFEST
 Makefile.PL
 README.md
 lib/Mask/PII.pm
