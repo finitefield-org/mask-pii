@@ -41,11 +41,11 @@ class Masker {
     .SYNOPSIS
     Sets the character used for masking.
     #>
-    [Masker] WithMaskChar([char]$MaskChar) {
-        if ($MaskChar -eq [char]0) {
-            $MaskChar = '*'
+    [Masker] WithMaskChar([char]$Character) {
+        if ($Character -eq [char]0) {
+            $Character = '*'
         }
-        $this.MaskChar = $MaskChar
+        $this.MaskChar = $Character
         return $this
     }
 
@@ -58,22 +58,22 @@ class Masker {
             return $Input
         }
 
-        $maskChar = $this.MaskChar
-        if ($maskChar -eq [char]0) {
-            $maskChar = '*'
+        $effectiveMaskChar = $this.MaskChar
+        if ($effectiveMaskChar -eq [char]0) {
+            $effectiveMaskChar = '*'
         }
 
         $result = $Input
         if ($this.MaskEmailsEnabled) {
-            $result = [Masker]::MaskEmailsInText($result, $maskChar)
+            $result = [Masker]::MaskEmailsInText($result, $effectiveMaskChar)
         }
         if ($this.MaskPhonesEnabled) {
-            $result = [Masker]::MaskPhonesInText($result, $maskChar)
+            $result = [Masker]::MaskPhonesInText($result, $effectiveMaskChar)
         }
         return $result
     }
 
-    hidden static [string] MaskEmailsInText([string]$Input, [char]$MaskChar) {
+    hidden static [string] MaskEmailsInText([string]$Input, [char]$Character) {
         $length = $Input.Length
         $builder = [System.Text.StringBuilder]::new($length)
         $last = 0
@@ -110,7 +110,7 @@ class Masker {
                         $domain = $Input.Substring($domainStart, $matchedEnd - $domainStart)
 
                         [void]$builder.Append($Input.Substring($last, $localStart - $last))
-                        [void]$builder.Append([Masker]::MaskLocal($local, $MaskChar))
+                        [void]$builder.Append([Masker]::MaskLocal($local, $Character))
                         [void]$builder.Append('@')
                         [void]$builder.Append($domain)
 
@@ -126,7 +126,7 @@ class Masker {
         return $builder.ToString()
     }
 
-    hidden static [string] MaskPhonesInText([string]$Input, [char]$MaskChar) {
+    hidden static [string] MaskPhonesInText([string]$Input, [char]$Character) {
         $length = $Input.Length
         $builder = [System.Text.StringBuilder]::new($length)
         $last = 0
@@ -152,7 +152,7 @@ class Masker {
                     if ($digitCount -ge 5) {
                         $candidate = $Input.Substring($i, $candidateEnd - $i)
                         [void]$builder.Append($Input.Substring($last, $i - $last))
-                        [void]$builder.Append([Masker]::MaskPhoneCandidate($candidate, $MaskChar))
+                        [void]$builder.Append([Masker]::MaskPhoneCandidate($candidate, $Character))
                         $last = $candidateEnd
                         $i = $candidateEnd - 1
                         continue
@@ -168,19 +168,19 @@ class Masker {
         return $builder.ToString()
     }
 
-    hidden static [string] MaskLocal([string]$Local, [char]$MaskChar) {
+    hidden static [string] MaskLocal([string]$Local, [char]$Character) {
         if ($Local.Length -gt 1) {
             $builder = [System.Text.StringBuilder]::new($Local.Length)
             [void]$builder.Append($Local[0])
             for ($i = 1; $i -lt $Local.Length; $i++) {
-                [void]$builder.Append($MaskChar)
+                [void]$builder.Append($Character)
             }
             return $builder.ToString()
         }
-        return $MaskChar.ToString()
+        return $Character.ToString()
     }
 
-    hidden static [string] MaskPhoneCandidate([string]$Candidate, [char]$MaskChar) {
+    hidden static [string] MaskPhoneCandidate([string]$Candidate, [char]$Character) {
         $digitCount = 0
         foreach ($ch in $Candidate.ToCharArray()) {
             if ([Masker]::IsDigit($ch)) {
@@ -194,7 +194,7 @@ class Masker {
             if ([Masker]::IsDigit($ch)) {
                 $currentIndex++
                 if ($digitCount -gt 4 -and $currentIndex -le ($digitCount - 4)) {
-                    [void]$builder.Append($MaskChar)
+                    [void]$builder.Append($Character)
                 } else {
                     [void]$builder.Append($ch)
                 }
@@ -264,12 +264,12 @@ class Masker {
 
     hidden static [bool] IsDigit([char]$Char) {
         $code = [int]$Char
-        return ($code -ge [int]'0' -and $code -le [int]'9')
+        return ($code -ge [int][char]'0' -and $code -le [int][char]'9')
     }
 
     hidden static [bool] IsAlpha([char]$Char) {
         $code = [int]$Char
-        return (($code -ge [int]'a' -and $code -le [int]'z') -or ($code -ge [int]'A' -and $code -le [int]'Z'))
+        return (($code -ge [int][char]'a' -and $code -le [int][char]'z') -or ($code -ge [int][char]'A' -and $code -le [int][char]'Z'))
     }
 
     hidden static [bool] IsAlphaNumeric([char]$Char) {
@@ -285,4 +285,4 @@ function New-Masker {
     return [Masker]::new()
 }
 
-Export-ModuleMember -Function New-Masker -Class Masker
+Export-ModuleMember -Function New-Masker

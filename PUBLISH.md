@@ -357,8 +357,14 @@ PS-01確認結果（2026-07-21）:
 - 新規packageと新versionのpush権限を持ち、`MaskPII` に限定したAPIキーを作成した。キーの値はリポジトリ、文書、チャットへ記録しない。
 - Gallery APIの `FindPackagesById` で `MaskPII` の既存packageが0件であることを確認した。
 
+PS-02検証結果（2026-07-21）:
+
+- PowerShell 7.6.4／Pester 6.0.1で `make test-powershell` を実行し、28テストが成功、失敗0件だった。
+- `make publish-powershell-dry` の `Test-ModuleManifest` が成功し、`MaskPII` 0.2.0とexport済みの `New-Masker` を認識した。
+- class propertyと変数名の衝突、不正なclass export、文字コード比較、Pesterのcase parameterizationを修正し、Pester失敗をMakeの終了コードへ反映した。
+
 - [x] **PS-01** Galleryアカウント、APIキー、`MaskPII` 名の空きを確認する。
-- [ ] **PS-02** `make test-powershell` と `make publish-powershell-dry` を実行する。
+- [x] **PS-02** `make test-powershell` と `make publish-powershell-dry` を実行する。
 - [ ] **PS-03** `Test-ModuleManifest` で版、export、tag、license URI、project URI、repositoryを確認する。
 - [ ] **PS-04** キーを履歴へ露出せず `Publish-Module -Path ./powershell/MaskPII -NuGetApiKey $PS_GALLERY_KEY` を実行する。
 - [ ] **PS-05** `Find-Module MaskPII` とクリーンscopeへのinstall／importを確認する。

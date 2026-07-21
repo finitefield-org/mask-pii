@@ -75,7 +75,7 @@ test-hare:
 # Run PowerShell tests
 
 test-powershell:
-	pwsh -NoProfile -Command "Invoke-Pester -Path ./powershell/tests -Output Detailed"
+	pwsh -NoProfile -Command '$$result = Invoke-Pester -Path ./powershell/tests -Output Detailed -PassThru; if ($$result.FailedCount -gt 0) { exit 1 }'
 
 # Run Odin tests
 
