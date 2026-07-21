@@ -351,7 +351,13 @@ PERL-03検証結果（2026-07-21）:
 
 公式資料: [Publishing to PowerShell Gallery](https://learn.microsoft.com/powershell/gallery/how-to/publishing-packages/publishing-a-package)
 
-- [ ] **PS-01** Galleryアカウント、APIキー、`MaskPII` 名の空きを確認する。
+PS-01確認結果（2026-07-21）:
+
+- PowerShell Galleryのアカウント登録を完了した。
+- 新規packageと新versionのpush権限を持ち、`MaskPII` に限定したAPIキーを作成した。キーの値はリポジトリ、文書、チャットへ記録しない。
+- Gallery APIの `FindPackagesById` で `MaskPII` の既存packageが0件であることを確認した。
+
+- [x] **PS-01** Galleryアカウント、APIキー、`MaskPII` 名の空きを確認する。
 - [ ] **PS-02** `make test-powershell` と `make publish-powershell-dry` を実行する。
 - [ ] **PS-03** `Test-ModuleManifest` で版、export、tag、license URI、project URI、repositoryを確認する。
 - [ ] **PS-04** キーを履歴へ露出せず `Publish-Module -Path ./powershell/MaskPII -NuGetApiKey $PS_GALLERY_KEY` を実行する。
